@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
+import { DEBATE_TOPICS, ZOZU_MISSIONS } from './cards.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -76,45 +77,63 @@ setInterval(() => {
   }
 }, 15 * 60 * 1000);
 
-const SERVER_ZOZU_MISSIONS = [
-  { type: "Mot secret", text: 'Placer le mot "KANGOUROU" naturellement dans un argument.' },
-  { type: "Mot secret", text: 'Placer le mot "BROUETTE" sans faire rire la table.' },
-  { type: "Mot secret", text: 'Placer le mot "TRACTEUR" au milieu d\'une phrase.' },
-  { type: "Mot secret", text: 'Placer le mot "ASTRONAUTE" de manière crédible.' },
-  { type: "Mot secret", text: 'Placer le mot "PAMPLEMOUSSE" en parlant du sujet.' },
-  { type: "Mot secret", text: 'Placer le mot "PIRATE" ou "TRÉSOR" naturellement.' },
-  { type: "Mot secret", text: 'Placer le mot "TROMPETTE" dans tes explications.' },
-  { type: "Mot secret", text: 'Placer le mot "CACAHUÈTE" l\'air de rien.' },
-  { type: "Mot secret", text: 'Placer le mot "DINOSAURE" dans un exemple historique.' },
-  { type: "Mot secret", text: 'Placer le mot "CHAMPIGNON" comme si c\'était crucial.' },
-  { type: "Mot secret", text: 'Placer le mot "CROISSANT" ou "BAGUETTE" mine de rien.' },
-  { type: "Mot secret", text: 'Placer le mot "TÉLESCOPE" ou "GALAXIE" avec aplomb.' },
-  { type: "Mot secret", text: 'Placer le mot "CHOU-FLEUR" au détour d\'une phrase.' },
-  { type: "Comportement", text: 'Approuver avec insistance tout ce que dit la personne en face de toi.' },
-  { type: "Comportement", text: 'Faire un compliment très appuyé à quelqu\'un au milieu d\'un argument.' },
-  { type: "Comportement", text: 'Commencer deux de tes arguments par : "Mon grand-père me disait toujours...".' },
-  { type: "Comportement", text: 'Changer radicalement d\'avis au milieu du débat en disant : "Finalement, vous m\'avez convaincu".' },
-  { type: "Comportement", text: 'Prétendre avoir une anecdote vécue totalement folle et improbable sur le sujet.' },
-  { type: "Comportement", text: 'Utiliser 3 fois l\'expression "D\'un point de vue purement scientifique".' },
-  { type: "Comportement", text: 'Hoqueter discrètement ou feindre un micro-bâillement au moment de parler.' },
-  { type: "Comportement", text: 'Contredire le dernier argument en commençant par : "Historiquement parlant...".' },
-  { type: "Comportement", text: 'Demander à la cantonade : "Attendez, quelqu\'un a l\'heure ?" en plein débat.' },
-  { type: "Comportement", text: 'Valider un argument en levant deux pouces avec un sourire très sérieux.' },
-  { type: "Comportement", text: 'Faire semblant de noter discrètement un mot clé sur la table avec son doigt.' }
-];
+// Decks filtrés pour le jeu en ligne (le client ne peut jamais forcer un deck)
+const ONLINE_TOPICS = DEBATE_TOPICS.filter(t => t.deck === 'both' || t.deck === 'online');
+const ONLINE_MISSIONS = ZOZU_MISSIONS.filter(m => m.deck === 'both' || m.deck === 'online');
 
-const SERVER_DEBATE_TOPICS = [
-  { cat: "Quotidien & Débats absurdes", title: "Est-ce que la pizza à l'ananas mérite réellement d'exister ?" },
-  { cat: "Quotidien & Débats absurdes", title: "Faut-il légalement interdire les réveils avant 9h du matin ?" },
-  { cat: "Quotidien & Débats absurdes", title: "Les gens qui applaudissent à l'atterrissage de l'avion : héros ou malaise ?" },
-  { cat: "Quotidien & Débats absurdes", title: "Mettre les céréales avant le lait ou le lait avant les céréales ?" },
-  { cat: "Dilemmes impossibles", title: "Vaudrait-il mieux pouvoir voler ou devenir invisible à volonté ?" },
-  { cat: "Dilemmes impossibles", title: "Préféreriez-vous vivre 100 ans dans le passé ou 100 ans dans le futur ?" },
-  { cat: "Pop Culture & Cinéma", title: "Quel est le film le plus surcoté de l'histoire du cinéma ?" },
-  { cat: "Pop Culture & Cinéma", title: "Si vous deviez vivre dans l'univers d'un jeu vidéo, lequel choisiriez-vous ?" },
-  { cat: "Technologie & Futur", title: "L'Intelligence Artificielle va-t-elle rendre les humains fainéants ou géniaux ?" },
-  { cat: "Technologie & Futur", title: "Pourrait-on survivre une semaine entière sans smartphone ni Internet ?" }
-];
+// Gestion de la mémoire des tirages sans répétition pour les salons en ligne
+function pickTopicForRoom(room) {
+  if (!room.usedTopics) room.usedTopics = [];
+  let available = ONLINE_TOPICS.filter(t => !room.usedTopics.includes(t.title));
+  if (available.length === 0) {
+    const lastTopicTitle = room.topic ? room.topic.title : null;
+    room.usedTopics = lastTopicTitle ? [lastTopicTitle] : [];
+    available = ONLINE_TOPICS.filter(t => !room.usedTopics.includes(t.title));
+    if (available.length === 0) available = ONLINE_TOPICS;
+  }
+  const picked = available[Math.floor(Math.random() * available.length)];
+  room.usedTopics.push(picked.title);
+  return picked;
+}
+
+function assignMissionsForRoom(room, zozuPlayers) {
+  room.missions = {};
+  if (!room.usedMissions) room.usedMissions = [];
+  if (!room.previousMissions) room.previousMissions = {};
+
+  const currentRoundTexts = new Set();
+  for (const p of zozuPlayers) {
+    const prevText = room.previousMissions[p.id] || null;
+    let pool = ONLINE_MISSIONS.filter(m =>
+      !room.usedMissions.includes(m.text) &&
+      !currentRoundTexts.has(m.text) &&
+      m.text !== prevText
+    );
+
+    if (pool.length === 0) {
+      room.usedMissions = [...currentRoundTexts];
+      pool = ONLINE_MISSIONS.filter(m =>
+        !currentRoundTexts.has(m.text) &&
+        m.text !== prevText
+      );
+      if (pool.length === 0) {
+        pool = ONLINE_MISSIONS.filter(m => !currentRoundTexts.has(m.text));
+      }
+      if (pool.length === 0) pool = ONLINE_MISSIONS;
+    }
+
+    const picked = pool[Math.floor(Math.random() * pool.length)];
+    room.missions[p.id] = picked;
+    currentRoundTexts.add(picked.text);
+    room.usedMissions.push(picked.text);
+  }
+
+  // Mémoriser pour la manche suivante (aucun Zozu ne reçoit la même mission 2 manches de suite)
+  room.previousMissions = {};
+  for (const p of zozuPlayers) {
+    room.previousMissions[p.id] = room.missions[p.id] ? room.missions[p.id].text : null;
+  }
+}
 
 // 32 characters avoiding ambiguous ones (no 0/O, 1/I)
 const ROOM_CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -295,6 +314,21 @@ const server = http.createServer((req, res) => {
   // --- ROUTES MULTIJOUEUR SALON EN LIGNE ---
   // =========================================================================
 
+  // 0. OBTENIR LES CARTES LOCALES (Pass & Play / Banque unique)
+  if (pathname === '/api/cards' && req.method === 'GET') {
+    const localTopics = DEBATE_TOPICS.filter(t => t.deck === 'both' || t.deck === 'local');
+    const localMissions = ZOZU_MISSIONS.filter(m => m.deck === 'both' || m.deck === 'local');
+    res.writeHead(200, {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Cache-Control': 'public, max-age=3600'
+    });
+    res.end(JSON.stringify({
+      topics: localTopics,
+      missions: localMissions
+    }));
+    return;
+  }
+
   // 1. CRÉER UN SALON
   if (pathname === '/api/create-room' && req.method === 'POST') {
     readJson((err, data) => {
@@ -327,6 +361,9 @@ const server = http.createServer((req, res) => {
         votes: {},
         eliminatedIds: [],
         lastResult: null,
+        usedTopics: [],
+        usedMissions: [],
+        previousMissions: {},
         created: Date.now(),
         lastActiveAt: Date.now()
       };
@@ -529,16 +566,16 @@ const server = http.createServer((req, res) => {
       const pickedZozuPlayers = shuffledPlayerIndices.slice(0, targetZozuCount).map(idx => room.players[idx]);
       room.zozuIds = pickedZozuPlayers.map(p => p.id);
 
-      // Attribution de missions distinctes à chaque Zozu
-      const shuffledMissions = [...SERVER_ZOZU_MISSIONS].sort(() => 0.5 - Math.random());
-      room.missions = {};
-      pickedZozuPlayers.forEach((p, i) => {
-        room.missions[p.id] = shuffledMissions[i] || { type: 'Mot secret', text: 'Placer le mot "KANGOUROU" naturellement.' };
-      });
+      // Réinitialisation de la mémoire pour une nouvelle partie
+      room.usedTopics = [];
+      room.usedMissions = [];
+      room.previousMissions = {};
 
-      // Sujet de débat
-      const randomTopic = SERVER_DEBATE_TOPICS[Math.floor(Math.random() * SERVER_DEBATE_TOPICS.length)];
-      room.topic = randomTopic || SERVER_DEBATE_TOPICS[0];
+      // Attribution de missions distinctes à chaque Zozu sans répétition
+      assignMissionsForRoom(room, pickedZozuPlayers);
+
+      // Sujet de débat sans répétition
+      room.topic = pickTopicForRoom(room);
 
       // Passage à l'état "revealing" (carte secrète individuelle)
       room.status = 'revealing';
@@ -689,14 +726,10 @@ const server = http.createServer((req, res) => {
       if (room.status === 'result') {
         room.round++;
         const aliveZozus = room.players.filter(p => room.zozuIds.includes(p.id) && !room.eliminatedIds.includes(p.id));
-        const shuffledMissions = [...SERVER_ZOZU_MISSIONS].sort(() => 0.5 - Math.random());
-        aliveZozus.forEach((p, idx) => {
-          room.missions[p.id] = shuffledMissions[idx] || SERVER_ZOZU_MISSIONS[0];
-        });
+        assignMissionsForRoom(room, aliveZozus);
 
-        // New topic
-        const randomTopic = SERVER_DEBATE_TOPICS[Math.floor(Math.random() * SERVER_DEBATE_TOPICS.length)];
-        room.topic = randomTopic || SERVER_DEBATE_TOPICS[0];
+        // New topic sans répétition
+        room.topic = pickTopicForRoom(room);
 
         room.status = 'revealing';
         room.revealedPlayerIds = [];

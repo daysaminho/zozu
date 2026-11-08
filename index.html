@@ -23,6 +23,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
   
+  <!-- BANQUE UNIQUE DE CARTES (DÉBATS & MISSIONS) -->
+  <script src="/cards.browser.js"></script>
+  
   <style>
     :root {
       /* PALETTE CHALEUREUSE & CONVIVIALE */
@@ -1658,6 +1661,11 @@
             <span id="btn-share-link-text">Partager le lien</span>
           </button>
         </div>
+
+        <!-- RAPPEL APPEL VOCAL EN LIGNE -->
+        <div style="margin-top: 12px; background: rgba(255, 200, 61, 0.25); border: 2px dashed var(--text-brown); border-radius: var(--radius-md); padding: 8px 12px; font-size: 0.86rem; font-weight: 700; color: var(--text-brown); line-height: 1.35;">
+          🎙️ En ligne, lancez un appel vocal (Discord, WhatsApp...) pendant la partie.
+        </div>
       </div>
 
       <div class="card-box tilt-right">
@@ -1756,7 +1764,8 @@
           1. Le principe du jeu
         </div>
         <div class="rule-step-desc">
-          ZOZU est un jeu de déduction sociale et de débat oral de 3 à 12 joueurs. Tout le monde débat sur un sujet imposé pendant 2 minutes chrono.
+          ZOZU est un jeu de déduction sociale et de débat oral de 3 à 12 joueurs. Tout le monde débat sur un sujet imposé pendant 2 minutes chrono.<br><br>
+          <em>En ligne, lancez un appel vocal (Discord, WhatsApp...) pendant la partie.</em>
         </div>
       </div>
 
@@ -1940,64 +1949,40 @@
     }
 
     // =========================================================================
-    // --- BANQUE DE DÉBATS (EXTENSIBLE À L'INFINI) ---
+    // --- BANQUE UNIQUE DE CARTES (DÉBATS & MISSIONS VIA CARDS.BROWSER.JS / API) ---
     // =========================================================================
-    const DEBATE_TOPICS = [
-      { cat: "Quotidien & Débats absurdes", title: "Est-ce que la pizza à l'ananas mérite réellement d'exister ?" },
-      { cat: "Quotidien & Débats absurdes", title: "Faut-il légalement interdire les réveils avant 9h du matin ?" },
-      { cat: "Quotidien & Débats absurdes", title: "Les gens qui applaudissent à l'atterrissage de l'avion : héros ou malaise ?" },
-      { cat: "Quotidien & Débats absurdes", title: "Mettre les céréales avant le lait ou le lait avant les céréales ?" },
-      { cat: "Quotidien & Débats absurdes", title: "Est-ce acceptable de porter des chaussettes avec des claquettes en public ?" },
-      { cat: "Quotidien & Débats absurdes", title: "Dormir avec la porte de sa chambre ouverte : folie ou liberté ?" },
-      { cat: "Quotidien & Débats absurdes", title: "Peut-on considérer le ketchup comme une confiture de tomates ?" },
-      { cat: "Dilemmes impossibles", title: "Vaudrait-il mieux pouvoir voler ou devenir invisible à volonté ?" },
-      { cat: "Dilemmes impossibles", title: "Préféreriez-vous vivre 100 ans dans le passé ou 100 ans dans le futur ?" },
-      { cat: "Dilemmes impossibles", title: "Ne plus jamais pouvoir écouter de musique ou ne plus jamais pouvoir regarder de films ?" },
-      { cat: "Dilemmes impossibles", title: "Avoir le pouvoir de parler à tous les animaux ou parler toutes les langues du monde ?" },
-      { cat: "Dilemmes impossibles", title: "Savoir exactement le jour de sa mort ou savoir comment on va mourir ?" },
-      { cat: "Vie en société & Soirée", title: "Le pire cadeau d'anniversaire qu'un ami puisse t'offrir ?" },
-      { cat: "Vie en société & Soirée", title: "Peut-on rester ami avec son ex sans que ce soit bizarre ?" },
-      { cat: "Vie en société & Soirée", title: "Est-ce malpoli de regarder son téléphone pendant un dîner entre amis ?" },
-      { cat: "Vie en société & Soirée", title: "Qui devrait payer l'addition lors d'un tout premier rendez-vous ?" },
-      { cat: "Vie en société & Soirée", title: "L'art de s'éclipser d'une soirée sans dire au revoir à personne : coup de maître ou manque de respect ?" },
-      { cat: "Pop Culture & Cinéma", title: "Quel est le film le plus surcoté de l'histoire du cinéma ?" },
-      { cat: "Pop Culture & Cinéma", title: "Si vous deviez vivre dans l'univers d'un jeu vidéo, lequel choisiriez-vous ?" },
-      { cat: "Pop Culture & Cinéma", title: "Est-ce que les suites de films sont quasiment toujours moins bonnes que l'original ?" },
-      { cat: "Pop Culture & Cinéma", title: "Les super-héros font-ils finalement plus de dégâts que les super-vilains ?" },
-      { cat: "Technologie & Futur", title: "L'Intelligence Artificielle va-t-elle rendre les humains fainéants ou géniaux ?" },
-      { cat: "Technologie & Futur", title: "Pourrait-on survivre une semaine entière sans smartphone ni Internet ?" },
-      { cat: "Technologie & Futur", title: "Les robots auront-ils un jour le droit de vote ?" }
-    ];
+    function getAvailableDebateTopics() {
+      if (typeof window !== 'undefined' && window.ZOZU_CARDS && Array.isArray(window.ZOZU_CARDS.DEBATE_TOPICS)) {
+        return window.ZOZU_CARDS.DEBATE_TOPICS.filter(t => t.deck === 'both' || t.deck === 'local');
+      }
+      return [
+        { cat: "Quotidien", title: "L'ananas sur la pizza : crime ou génie ?", deck: "both" }
+      ];
+    }
 
-    // =========================================================================
-    // --- BANQUE DE MISSIONS POUR LE ZOZU (EXTENSIBLE À L'INFINI) ---
-    // =========================================================================
-    const ZOZU_MISSIONS = [
-      { type: "Mot secret", text: 'Placer le mot "KANGOUROU" naturellement dans un argument.' },
-      { type: "Mot secret", text: 'Placer le mot "BROUETTE" sans faire rire la table.' },
-      { type: "Mot secret", text: 'Placer le mot "TRACTEUR" au milieu d\'une phrase.' },
-      { type: "Mot secret", text: 'Placer le mot "ASTRONAUTE" de manière crédible.' },
-      { type: "Mot secret", text: 'Placer le mot "PAMPLEMOUSSE" en parlant du sujet.' },
-      { type: "Mot secret", text: 'Placer le mot "PIRATE" ou "TRÉSOR" naturellement.' },
-      { type: "Mot secret", text: 'Placer le mot "TROMPETTE" dans tes explications.' },
-      { type: "Mot secret", text: 'Placer le mot "CACAHUÈTE" l\'air de rien.' },
-      { type: "Comportement", text: 'Approuver avec insistance tout ce que dit la personne en face de toi.' },
-      { type: "Comportement", text: 'Faire un compliment très appuyé à quelqu\'un au milieu d\'un argument.' },
-      { type: "Comportement", text: 'Commencer deux de tes arguments par : "Mon grand-père me disait toujours...".' },
-      { type: "Comportement", text: 'Changer radicalement d\'avis au milieu du débat en disant : "Finalement, vous m\'avez convaincu".' },
-      { type: "Comportement", text: 'Répéter exactement un mot savant prononcé par un autre joueur.' },
-      { type: "Comportement", text: 'Prétendre avoir une anecdote vécue totalement folle et improbable sur le sujet.' },
-      { type: "Comportement", text: 'Poser une question directe à la personne la plus discrète de la table.' },
-      { type: "Comportement", text: 'Utiliser 3 fois l\'expression "D\'un point de vue purement scientifique".' },
-      { type: "Mot secret", text: 'Placer le mot "DINOSAURE" dans une comparaison.' },
-      { type: "Mot secret", text: 'Placer le mot "CROISSANT" ou "BAGUETTE" mine de rien.' },
-      { type: "Mot secret", text: 'Placer le mot "TÉLESCOPE" ou "GALAXIE" avec aplomb.' },
-      { type: "Mot secret", text: 'Placer le mot "CHOU-FLEUR" au détour d\'une phrase.' },
-      { type: "Comportement", text: 'Hoqueter discrètement ou feindre un micro-bâillement au moment de parler.' },
-      { type: "Comportement", text: 'Contredire le dernier argument en commençant par : "Historiquement parlant...".' },
-      { type: "Comportement", text: 'Demander à la cantonade : "Attendez, quelqu\'un a l\'heure ?" en plein débat.' },
-      { type: "Comportement", text: 'Valider un argument en levant deux pouces avec un sourire très sérieux.' }
-    ];
+    function getAvailableZozuMissions() {
+      if (typeof window !== 'undefined' && window.ZOZU_CARDS && Array.isArray(window.ZOZU_CARDS.ZOZU_MISSIONS)) {
+        return window.ZOZU_CARDS.ZOZU_MISSIONS.filter(m => m.deck === 'both' || m.deck === 'local');
+      }
+      return [
+        { type: "Mot secret", text: 'Placer le mot « CHAUSSETTE » en parlant du sujet.', deck: "both" }
+      ];
+    }
+
+    // Synchronisation facultative avec l'API si le serveur est en ligne
+    if (typeof fetch === 'function') {
+      fetch('/api/cards')
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (data && data.topics && data.missions) {
+            window.ZOZU_CARDS = {
+              DEBATE_TOPICS: data.topics,
+              ZOZU_MISSIONS: data.missions
+            };
+          }
+        })
+        .catch(() => {});
+    }
 
     // =========================================================================
     // --- EFFETS SONORES WEB AUDIO ---
@@ -2590,7 +2575,10 @@
       selectedVoteId: null,
       timerSeconds: 120,
       timerInterval: null,
-      isTimerRunning: false
+      isTimerRunning: false,
+      usedTopics: [],
+      usedMissions: [],
+      previousMissions: {} // { [zozuPlayerId]: missionText }
     };
 
     function getMaxZozu(playerCount) {
@@ -2960,41 +2948,82 @@
         .sort(() => Math.random() - 0.5);
       const pickedZozuIndices = new Set(shuffledIndices.slice(0, targetZozuCount));
 
-      // Attribution d'une mission différente à chaque Zozu
-      const shuffledMissions = [...ZOZU_MISSIONS].sort(() => Math.random() - 0.5);
-      let missionIdx = 0;
-
       // Fixation définitive des couleurs de 1 à N pour toute la partie !
       gameState.players = localPlayers.map((name, idx) => {
         const isZ = pickedZozuIndices.has(idx);
-        const mission = isZ ? (shuffledMissions[missionIdx++] || ZOZU_MISSIONS[0]) : null;
         return {
           id: 'p_' + idx,
           name: name.trim() || `Joueur ${idx + 1}`,
           colorIndex: idx + 1, // Fixé pour toujours
           isZozu: isZ,
-          mission: mission,
+          mission: null,
           eliminated: false
         };
       });
 
       gameState.round = 1;
       gameState.currentCardIndex = 0;
+      gameState.usedTopics = [];
+      gameState.usedMissions = [];
+      gameState.previousMissions = {};
 
       pickNewTopicAndMission();
       showPassPhoneScreen();
     }
 
     function pickNewTopicAndMission() {
-      const topic = DEBATE_TOPICS[Math.floor(Math.random() * DEBATE_TOPICS.length)];
+      const localTopics = getAvailableDebateTopics();
+      if (!gameState.usedTopics) gameState.usedTopics = [];
+      let availableTopics = localTopics.filter(t => !gameState.usedTopics.includes(t.title));
+      if (availableTopics.length === 0) {
+        const lastTopicTitle = gameState.currentTopic ? gameState.currentTopic.title : null;
+        gameState.usedTopics = lastTopicTitle ? [lastTopicTitle] : [];
+        availableTopics = localTopics.filter(t => !gameState.usedTopics.includes(t.title));
+        if (availableTopics.length === 0) availableTopics = localTopics;
+      }
+      const topic = availableTopics[Math.floor(Math.random() * availableTopics.length)];
+      gameState.usedTopics.push(topic.title);
       gameState.currentTopic = topic;
 
-      // À chaque nouvelle manche, chaque Zozu vivant reçoit une NOUVELLE mission secrète, sans doublon !
+      // Attribution des missions pour chaque Zozu vivant sans doublon et sans répétition
       const aliveZozus = gameState.players.filter(p => p.isZozu && !p.eliminated);
-      const shuffledMissions = [...ZOZU_MISSIONS].sort(() => Math.random() - 0.5);
-      aliveZozus.forEach((zozu, i) => {
-        zozu.mission = shuffledMissions[i] || ZOZU_MISSIONS[0];
+      const localMissions = getAvailableZozuMissions();
+      if (!gameState.usedMissions) gameState.usedMissions = [];
+      if (!gameState.previousMissions) gameState.previousMissions = {};
+
+      const currentRoundTexts = new Set();
+      aliveZozus.forEach(zozu => {
+        const prevText = gameState.previousMissions[zozu.id] || null;
+        let pool = localMissions.filter(m =>
+          !gameState.usedMissions.includes(m.text) &&
+          !currentRoundTexts.has(m.text) &&
+          m.text !== prevText
+        );
+
+        if (pool.length === 0) {
+          gameState.usedMissions = [...currentRoundTexts];
+          pool = localMissions.filter(m =>
+            !currentRoundTexts.has(m.text) &&
+            m.text !== prevText
+          );
+          if (pool.length === 0) {
+            pool = localMissions.filter(m => !currentRoundTexts.has(m.text));
+          }
+          if (pool.length === 0) pool = localMissions;
+        }
+
+        const picked = pool[Math.floor(Math.random() * pool.length)];
+        zozu.mission = picked;
+        currentRoundTexts.add(picked.text);
+        gameState.usedMissions.push(picked.text);
       });
+
+      // Mémoriser pour la manche suivante
+      gameState.previousMissions = {};
+      aliveZozus.forEach(zozu => {
+        gameState.previousMissions[zozu.id] = zozu.mission ? zozu.mission.text : null;
+      });
+
       if (aliveZozus.length > 0) {
         gameState.zozuMission = aliveZozus[0].mission;
       }
