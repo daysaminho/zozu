@@ -1,0 +1,18 @@
+# Dépendances
+node_modules/
+
+# Environnement et secrets
+.env
+.env.*
+
+# Captures d'écran et médias de test
+screenshots/
+
+# Scripts et fichiers de test temporaires
+test_*.mjs
+test_*.py
+*.log
+
+# Fichiers système
+.DS_Store
+Thumbs.db

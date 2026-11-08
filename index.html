@@ -1,0 +1,3563 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ZOZU - Le jeu du débat infiltré</title>
+  
+  <!-- PWA & MOBILE APP METAS -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#FFF3DC">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="ZOZU">
+  
+  <!-- ICONS -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <!-- GOOGLE FONTS : FREDOKA (TITRES) + NUNITO (TEXTE) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      /* PALETTE CHALEUREUSE & CONVIVIALE */
+      --bg-cream: #FFF3DC;
+      --card-bg: #FFFFFF;
+      --card-bg-subtle: #FFF9EE;
+      --text-brown: #2A1E17;
+      --text-muted: #6B584C;
+      --border-color: #2A1E17;
+
+      /* ACCENTS PRINCIPAUX */
+      --accent-tomato: #FF5A3C;
+      --accent-mustard: #FFC83D;
+      --accent-mint: #2EC4B6;
+      --accent-pink: #FF8FB1;
+
+      /* LES 12 COULEURS OBLIGATOIRES DES JOUEURS */
+      --player-1: #FF5A3C;  /* Tomate */
+      --player-2: #FFC83D;  /* Moutarde */
+      --player-3: #2EC4B6;  /* Menthe */
+      --player-4: #FF8FB1;  /* Rose */
+      --player-5: #4DA3FF;  /* Bleu ciel */
+      --player-6: #9B6BFF;  /* Violet */
+      --player-7: #8BD43A;  /* Vert pomme */
+      --player-8: #FF9A2E;  /* Orange */
+      --player-9: #1B8A9E;  /* Turquoise foncé */
+      --player-10: #C23B5A; /* Bordeaux */
+      --player-11: #C9B5FF; /* Lavande */
+      --player-12: #B7793F; /* Marron caramel */
+
+      /* FORMES & OMBRES DURES DÉCALÉES SANS FLOU */
+      --border-solid: 3px solid #2A1E17;
+      --shadow-hard: 4px 4px 0 #2A1E17;
+      --shadow-hard-sm: 2px 2px 0 #2A1E17;
+      --shadow-hard-lg: 6px 6px 0 #2A1E17;
+      
+      --radius-sm: 10px;
+      --radius-md: 14px;
+      --radius-lg: 18px;
+      --radius-pill: 999px;
+
+      --font-title: 'Fredoka', cursive, system-ui, sans-serif;
+      --font-body: 'Nunito', system-ui, -apple-system, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      background-color: #FFF3DC;
+      background-image: radial-gradient(rgba(42, 30, 23, 0.06) 1.5px, transparent 1.5px);
+      background-size: 18px 18px;
+      color: var(--text-brown);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+    }
+
+    #app-container {
+      width: 100%;
+      max-width: 500px;
+      min-height: 100vh;
+      padding: 14px 12px 24px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-sizing: border-box;
+      margin: 0 auto;
+    }
+
+    @media (min-width: 640px) {
+      #app-container {
+        max-width: 560px;
+        padding: 22px 20px 36px;
+      }
+    }
+
+    /* FORMES DÉCORATIVES SUR DESKTOP */
+    .desktop-decorations {
+      display: none;
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    @media (min-width: 900px) {
+      .desktop-decorations {
+        display: block;
+      }
+    }
+
+    /* EN-TÊTE AVEC MASCOTTE (MODE GRAND ACCUEIL OU COMPACT EN JEU) */
+    .brand-header {
+      text-align: center;
+      margin-top: 4px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      transition: all 0.15s ease;
+    }
+
+    .brand-header.compact {
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-top: 2px;
+      margin-bottom: 12px;
+    }
+
+    .brand-mascot-wrap {
+      width: 130px;
+      height: 130px;
+      margin-bottom: -18px;
+      position: relative;
+      z-index: 2;
+      transform: rotate(-4deg);
+      animation: floatMascot 3.5s ease-in-out infinite;
+      cursor: pointer;
+      filter: drop-shadow(3px 4px 0 #2A1E17);
+      transition: all 0.15s ease;
+    }
+
+    .brand-header.compact .brand-mascot-wrap {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 0;
+      transform: rotate(-3deg);
+      animation: none;
+      filter: drop-shadow(2px 2px 0 #2A1E17);
+    }
+
+    .brand-header.compact .brand-mascot-wrap svg {
+      width: 48px;
+      height: 48px;
+    }
+
+    @keyframes floatMascot {
+      0%, 100% { transform: translateY(0) rotate(-4deg); }
+      50% { transform: translateY(-5px) rotate(-1deg); }
+    }
+
+    .brand-title {
+      font-family: var(--font-title);
+      font-size: 4rem;
+      font-weight: 700;
+      letter-spacing: -1.5px;
+      line-height: 0.9;
+      color: var(--accent-tomato);
+      text-shadow: 4px 4px 0 var(--text-brown);
+      margin-bottom: 6px;
+      position: relative;
+      z-index: 1;
+      transition: all 0.15s ease;
+    }
+
+    .brand-header.compact .brand-title {
+      font-size: 1.8rem;
+      margin-bottom: 0;
+      text-shadow: 2.5px 2.5px 0 var(--text-brown);
+      letter-spacing: -0.5px;
+    }
+
+    .brand-tagline {
+      font-size: 0.98rem;
+      color: var(--text-muted);
+      font-weight: 800;
+      max-width: 100%;
+      text-align: center;
+      padding: 0 4px;
+      line-height: 1.35;
+    }
+
+    .brand-header.compact .brand-tagline {
+      display: none;
+    }
+
+    /* ÉCRANS */
+    .screen {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      animation: popIn 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.97) translateY(6px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* CARTES & BOÎTES CONVIVIALES */
+    .card-box {
+      background: var(--card-bg);
+      border: var(--border-solid);
+      border-radius: var(--radius-lg);
+      padding: 22px 18px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-hard);
+      position: relative;
+    }
+
+    .card-box.tilt-left {
+      transform: rotate(-0.8deg);
+    }
+
+    .card-box.tilt-right {
+      transform: rotate(0.8deg);
+    }
+
+    /* BOUTONS AVEC OMBRES DURES ET RETOUR CLIC */
+    .btn {
+      appearance: none;
+      border: var(--border-solid);
+      outline: none;
+      cursor: pointer;
+      font-family: var(--font-title);
+      font-weight: 700;
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      font-size: 1.05rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: var(--text-brown);
+      box-shadow: var(--shadow-hard);
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background-color 0.12s ease;
+      width: 100%;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      filter: brightness(1.03);
+    }
+
+    .btn:active {
+      transform: translate(3px, 3px);
+      box-shadow: 1px 1px 0 var(--text-brown);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: var(--shadow-hard) !important;
+    }
+
+    /* CASSE DE SYMÉTRIE : BOUTON HÉROS & INCLINAISONS */
+    .btn-hero {
+      padding: 18px 20px;
+      font-size: 1.22rem;
+      transform: rotate(0.6deg);
+      box-shadow: 5px 5px 0 #2A1E17;
+      margin-bottom: 14px !important;
+    }
+
+    .btn-hero:active {
+      transform: translate(3px, 3px) rotate(0.6deg);
+      box-shadow: 2px 2px 0 #2A1E17;
+    }
+
+    .btn-tilt-neg {
+      transform: rotate(-1.2deg);
+    }
+    .btn-tilt-neg:active {
+      transform: translate(3px, 3px) rotate(-1.2deg);
+      box-shadow: 1px 1px 0 var(--text-brown);
+    }
+
+    .btn-tilt-pos {
+      transform: rotate(1.2deg);
+    }
+    .btn-tilt-pos:active {
+      transform: translate(3px, 3px) rotate(1.2deg);
+      box-shadow: 1px 1px 0 var(--text-brown);
+    }
+
+    .btn-tilt-neg2 {
+      transform: rotate(-0.8deg);
+    }
+    .btn-tilt-neg2:active {
+      transform: translate(3px, 3px) rotate(-0.8deg);
+      box-shadow: 1px 1px 0 var(--text-brown);
+    }
+
+    /* ÉTIQUETTE RÈGLES COLLÉE AU COIN HAUT DROIT DE LA CARTE */
+    .card-sticker-btn {
+      position: absolute;
+      top: -16px;
+      right: 12px;
+      background: var(--accent-mustard);
+      border: var(--border-solid);
+      border-radius: var(--radius-pill);
+      box-shadow: 3px 3px 0 var(--text-brown);
+      padding: 6px 14px;
+      color: var(--text-brown);
+      font-family: var(--font-title);
+      font-size: 0.88rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transform: rotate(3.5deg);
+      z-index: 10;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+
+    .card-sticker-btn:hover {
+      transform: rotate(1deg) scale(1.03);
+      background: #ffd560;
+    }
+
+    .card-sticker-btn:active {
+      transform: translate(2px, 2px) rotate(3.5deg);
+      box-shadow: 1px 1px 0 var(--text-brown);
+    }
+
+    /* COULEURS DES BOUTONS PAR ÉCRAN */
+    .btn-tomato {
+      background: var(--accent-tomato);
+      color: #2A1E17;
+      text-shadow: none;
+    }
+
+    .btn-tomato svg {
+      stroke: #2A1E17;
+    }
+
+    .btn-mustard {
+      background: var(--accent-mustard);
+      color: var(--text-brown);
+    }
+
+    .btn-mint {
+      background: var(--accent-mint);
+      color: var(--text-brown);
+    }
+
+    .btn-pink {
+      background: var(--accent-pink);
+      color: var(--text-brown);
+    }
+
+    .btn-white {
+      background: #FFFFFF;
+      color: var(--text-brown);
+    }
+
+    .btn-secondary {
+      background: #FFFFFF;
+      color: var(--text-brown);
+    }
+
+    /* RÈGLES DU JEU (PILLULE EN HAUT) */
+    .rules-pill-btn {
+      background: #FFFFFF;
+      border: var(--border-solid);
+      border-radius: var(--radius-pill);
+      box-shadow: var(--shadow-hard-sm);
+      padding: 7px 18px;
+      color: var(--text-brown);
+      font-family: var(--font-title);
+      font-size: 0.85rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      cursor: pointer;
+      align-self: center;
+      margin-bottom: 18px;
+      transition: transform 0.08s ease, box-shadow 0.08s ease;
+    }
+
+    .rules-pill-btn:hover {
+      background: var(--card-bg-subtle);
+    }
+
+    .rules-pill-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0 0 0 var(--text-brown);
+    }
+
+    /* LISTE DES JOUEURS & PIONS */
+    .player-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      background: #FFFFFF;
+      border: var(--border-solid);
+      border-radius: var(--radius-md);
+      padding: 8px 12px;
+      box-shadow: var(--shadow-hard-sm);
+      transition: transform 0.12s ease;
+    }
+
+    .player-pawn {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-pill);
+      border: 3px solid var(--text-brown);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 1px 1px 0 var(--text-brown);
+      position: relative;
+    }
+
+    .player-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-brown);
+      font-family: var(--font-body);
+      font-weight: 800;
+      font-size: 1rem;
+    }
+
+    .player-input::placeholder {
+      color: #A39082;
+      font-weight: 700;
+    }
+
+    .player-delete-btn {
+      background: #FFF0ED;
+      border: 2px solid var(--text-brown);
+      border-radius: 8px;
+      color: var(--accent-tomato);
+      cursor: pointer;
+      padding: 4px 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 1px 1px 0 var(--text-brown);
+    }
+
+    .player-delete-btn:active {
+      transform: translate(1px, 1px);
+      box-shadow: none;
+    }
+
+    /* COMPTEUR DE JOUEURS [ - ] N [ + ] */
+    .counter-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      margin-top: 10px;
+      margin-bottom: 6px;
+    }
+
+    .counter-btn {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: var(--border-solid);
+      background: var(--accent-mustard);
+      color: var(--text-brown);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: var(--shadow-hard);
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background-color 0.1s ease;
+      flex-shrink: 0;
+      outline: none;
+    }
+
+    .counter-btn:hover:not(:disabled) {
+      filter: brightness(1.05);
+    }
+
+    .counter-btn:active:not(:disabled) {
+      transform: translate(3px, 3px);
+      box-shadow: 1px 1px 0 var(--text-brown);
+    }
+
+    .counter-btn:disabled {
+      background: #E6D9C2 !important;
+      color: rgba(42, 30, 23, 0.4) !important;
+      border-color: rgba(42, 30, 23, 0.35) !important;
+      box-shadow: none !important;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .counter-btn:disabled svg {
+      stroke: rgba(42, 30, 23, 0.4) !important;
+    }
+
+    .counter-display {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 6px;
+      min-width: 90px;
+    }
+
+    .counter-number {
+      font-family: var(--font-title);
+      font-size: 3.4rem;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--text-brown);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .counter-label {
+      font-family: var(--font-title);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .counter-subtext {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    /* COMPTEUR ACCENT TOMATE POUR LES ZOZUS */
+    .counter-btn-tomato {
+      background: var(--accent-tomato) !important;
+      color: #2A1E17 !important;
+    }
+
+    .counter-btn-tomato svg {
+      stroke: #2A1E17 !important;
+    }
+
+    .counter-btn-tomato:disabled {
+      background: #E6D9C2 !important;
+      color: rgba(42, 30, 23, 0.4) !important;
+      border-color: rgba(42, 30, 23, 0.35) !important;
+      box-shadow: none !important;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .counter-btn-tomato:disabled svg {
+      stroke: rgba(42, 30, 23, 0.4) !important;
+    }
+
+    .badge-recommended {
+      background: var(--accent-mint);
+      border: 2px solid var(--text-brown);
+      border-radius: var(--radius-pill);
+      padding: 1px 7px;
+      font-size: 0.70rem;
+      font-weight: 800;
+      color: var(--text-brown);
+      box-shadow: 1px 1px 0 var(--text-brown);
+      display: inline-block;
+      margin-top: 2px;
+    }
+
+    .zozu-reveal-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      background: #FFFFFF;
+      border: 2px solid var(--text-brown);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-hard-sm);
+      margin-bottom: 8px;
+      text-align: left;
+    }
+
+    .preset-pill-btn {
+      flex: 1;
+      background: #FFFFFF;
+      border: 2px solid var(--text-brown);
+      border-radius: var(--radius-sm);
+      padding: 8px 4px;
+      font-family: var(--font-title);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-brown);
+      cursor: pointer;
+      box-shadow: 2px 2px 0 var(--text-brown);
+      transition: transform 0.08s ease, box-shadow 0.08s ease;
+    }
+
+    .preset-pill-btn:active {
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0 var(--text-brown);
+    }
+
+    /* 3D CARD FLIP POUR LA CARTE SECRÈTE */
+    .card-flip-stage {
+      perspective: 1000px;
+      width: 100%;
+      min-height: 370px;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+
+    .card-flip-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 370px;
+      transition: transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+
+    .card-flip-inner.is-flipped {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: var(--radius-lg);
+      border: var(--border-solid-thick);
+      box-shadow: var(--shadow-hard-lg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 20px;
+      text-align: center;
+    }
+
+    /* DOS DE CARTE (MOTIF RÉTRO JEU DE SOCIÉTÉ) */
+    .card-face-back {
+      background-color: #FFFFFF;
+      background-image: 
+        radial-gradient(#2A1E17 12%, transparent 12%),
+        radial-gradient(#2A1E17 12%, transparent 12%);
+      background-size: 24px 24px;
+      background-position: 0 0, 12px 12px;
+      background-color: var(--accent-mustard);
+    }
+
+    .card-back-badge {
+      background: #FFFFFF;
+      border: var(--border-solid);
+      border-radius: var(--radius-pill);
+      padding: 10px 22px;
+      box-shadow: var(--shadow-hard);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* FACE AVANT DE LA CARTE SECRÈTE */
+    .card-face-front {
+      transform: rotateY(180deg);
+      background: #FFFFFF;
+    }
+
+    .role-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 18px;
+      border-radius: var(--radius-pill);
+      border: var(--border-solid);
+      font-family: var(--font-title);
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-hard-sm);
+      color: var(--text-brown);
+    }
+
+    .role-title {
+      font-family: var(--font-title);
+      font-size: 2.1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      line-height: 1.1;
+      color: var(--text-brown);
+    }
+
+    .role-desc {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+      max-width: 310px;
+      font-weight: 700;
+    }
+
+    .role-mission-box {
+      background: var(--card-bg-subtle);
+      border: var(--border-solid);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-hard-sm);
+      padding: 16px;
+      margin-top: 16px;
+      width: 100%;
+    }
+
+    .mission-label {
+      font-family: var(--font-title);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent-tomato);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .mission-text {
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: var(--text-brown);
+      line-height: 1.35;
+    }
+
+    /* ÉCRAN DÉBAT ET CHRONOMÈTRE DYNAMIQUE */
+    .round-tag {
+      font-family: var(--font-title);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-brown);
+      background: #FFFFFF;
+      border: var(--border-solid);
+      border-radius: var(--radius-pill);
+      padding: 4px 16px;
+      display: inline-block;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-hard-sm);
+      transform: rotate(-1deg);
+    }
+
+    .topic-card {
+      background: #FFFFFF;
+      border: var(--border-solid);
+      border-radius: var(--radius-lg);
+      padding: 22px 18px;
+      text-align: center;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-hard);
+      transform: rotate(0.6deg);
+    }
+
+    .topic-category {
+      font-family: var(--font-title);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent-tomato);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .topic-title {
+      font-family: var(--font-title);
+      font-size: 1.45rem;
+      font-weight: 700;
+      line-height: 1.3;
+      color: var(--text-brown);
+    }
+
+    /* CHRONO GROS CHIFFRES EN FREDOKA */
+    .timer-circle-wrap {
+      background: #FFFFFF;
+      border: var(--border-solid);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-hard);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .timer-value {
+      font-family: var(--font-title);
+      font-size: 4.2rem;
+      font-weight: 700;
+      letter-spacing: -1px;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      transition: color 0.3s ease;
+    }
+
+    /* COULEURS SELON LE TEMPS RESTANT */
+    .timer-mint {
+      color: var(--accent-mint);
+      text-shadow: 2px 2px 0 var(--text-brown);
+    }
+    .timer-mustard {
+      color: var(--accent-mustard);
+      text-shadow: 2px 2px 0 var(--text-brown);
+    }
+    .timer-tomato {
+      color: var(--accent-tomato);
+      text-shadow: 2px 2px 0 var(--text-brown);
+      animation: timerPulse 0.8s ease-in-out infinite;
+    }
+
+    @keyframes timerPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+    }
+
+    .timer-label {
+      font-family: var(--font-title);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    /* ÉCRAN DE VOTE - GROS BOUTONS AUX COULEURS DES JOUEURS */
+    .vote-item {
+      background: #FFFFFF;
+      border: var(--border-solid);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      box-shadow: var(--shadow-hard-sm);
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background-color 0.1s ease;
+      box-sizing: border-box;
+      max-width: 100%;
+    }
+
+    .vote-item:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0 var(--text-brown);
+    }
+
+    .vote-item.selected {
+      transform: translate(3px, 3px);
+      box-shadow: 1px 1px 0 var(--text-brown);
+      border-width: 3px;
+      background: #FFF9EE;
+    }
+
+    .vote-player-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .vote-name {
+      font-family: var(--font-title);
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--text-brown);
+    }
+
+    .vote-check {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-pill);
+      border: var(--border-solid);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #FFFFFF;
+      box-shadow: 1px 1px 0 var(--text-brown);
+    }
+
+    .vote-item.selected .vote-check {
+      background: var(--text-brown);
+      color: #FFFFFF;
+    }
+
+    /* BOUTON ÉLIMINER CE SUSPECT AVEC ÉTAT DÉSACTIVÉ EXACT */
+    #btn-confirm-vote {
+      background: var(--accent-tomato);
+      color: #2A1E17;
+      border: var(--border-solid);
+      box-shadow: var(--shadow-hard);
+      font-family: var(--font-title);
+      font-weight: 700;
+      transition: all 0.1s ease;
+      box-sizing: border-box;
+      max-width: 100%;
+    }
+
+    #btn-confirm-vote svg {
+      stroke: #2A1E17;
+    }
+
+    #btn-confirm-vote:disabled {
+      background: #E6D9C2 !important;
+      color: rgba(42, 30, 23, 0.6) !important;
+      box-shadow: none !important;
+      border: 3px solid rgba(42, 30, 23, 0.35) !important;
+      cursor: not-allowed;
+      transform: none !important;
+      opacity: 1 !important;
+    }
+
+    #btn-confirm-vote:disabled svg {
+      stroke: rgba(42, 30, 23, 0.6) !important;
+    }
+
+    #btn-confirm-vote:not(:disabled) {
+      background: var(--accent-tomato) !important;
+      color: #2A1E17 !important;
+      box-shadow: var(--shadow-hard) !important;
+    }
+
+    #btn-confirm-vote:not(:disabled) svg {
+      stroke: #2A1E17 !important;
+    }
+
+    /* DOCK DES JOUEURS SUR L'ÉCRAN DE DÉBAT */
+    .debate-players-dock {
+      background: #FFFFFF;
+      border: var(--border-solid);
+      border-radius: var(--radius-lg);
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-hard-sm);
+      text-align: center;
+    }
+
+    /* BANNIÈRE DE RÉSULTAT */
+    .result-banner {
+      background: #FFFFFF;
+      border: var(--border-solid-thick);
+      border-radius: var(--radius-lg);
+      padding: 24px 18px;
+      text-align: center;
+      margin-bottom: 18px;
+      box-shadow: var(--shadow-hard-lg);
+    }
+
+    .result-banner.success {
+      background: #E8FAF8;
+      border-color: var(--text-brown);
+    }
+
+    .result-banner.fail {
+      background: #FFF0ED;
+      border-color: var(--text-brown);
+    }
+
+    .result-icon {
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .result-title {
+      font-family: var(--font-title);
+      font-size: 1.7rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      line-height: 1.15;
+      color: var(--text-brown);
+    }
+
+    .result-desc {
+      font-size: 1rem;
+      color: var(--text-brown);
+      line-height: 1.45;
+      font-weight: 700;
+    }
+
+    /* CONFETTIS LÉGERS VECTORIELS - POINTS RONDS SANS BORD NOIR POUR ÉVITER TOUT EFFET DE TEXTE ÉCRASÉ */
+    .confetti-container {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 50;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border: none;
+      border-radius: 50%;
+      animation: dropConfetti 2.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+
+    @keyframes dropConfetti {
+      0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(600px) rotate(720deg); opacity: 0; }
+    }
+
+    /* CODE DE SALON EN LIGNE */
+    .code-display {
+      font-family: var(--font-title);
+      font-size: 3.2rem;
+      font-weight: 700;
+      letter-spacing: 8px;
+      color: var(--text-brown);
+      text-align: center;
+      padding: 14px;
+      background: var(--accent-mustard);
+      border: var(--border-solid);
+      box-shadow: var(--shadow-hard);
+      border-radius: var(--radius-md);
+      margin-bottom: 16px;
+    }
+
+    /* MODALES CHALEUREUSES (#rules-modal & #pwa-modal) */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(42, 30, 23, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 999;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 18px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #FFFFFF;
+      border: var(--border-solid-thick);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-hard-lg);
+      width: 100%;
+      max-width: 480px;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 24px 20px;
+      color: var(--text-brown);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      border-bottom: var(--border-solid);
+      padding-bottom: 12px;
+    }
+
+    .modal-title {
+      font-family: var(--font-title);
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text-brown);
+    }
+
+    .close-icon-btn {
+      background: #FFF0ED;
+      border: var(--border-solid);
+      border-radius: var(--radius-pill);
+      box-shadow: 2px 2px 0 var(--text-brown);
+      color: var(--text-brown);
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .close-icon-btn:active {
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0 var(--text-brown);
+    }
+
+    .rule-step {
+      margin-bottom: 14px;
+      padding: 12px 14px;
+      background: var(--card-bg-subtle);
+      border: 2px solid var(--text-brown);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-hard-sm);
+    }
+
+    .rule-step-title {
+      font-family: var(--font-title);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--accent-tomato);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .rule-step-desc {
+      font-size: 0.92rem;
+      line-height: 1.45;
+      color: var(--text-brown);
+      font-weight: 700;
+    }
+
+    /* SCROLLBAR PERSONNALISÉE */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-cream);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--accent-mustard);
+      border: 2px solid var(--text-brown);
+      border-radius: 4px;
+    }
+
+    /* RESPECT REDUCED MOTION */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* UTILS */
+    .text-center { text-align: center; }
+    .mt-auto { margin-top: auto; }
+    .mb-10 { margin-bottom: 10px; }
+    .mb-16 { margin-bottom: 16px; }
+    .mb-20 { margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+
+  <!-- DÉCORATIONS DESKTOP POUR ÉVITER LE GRAND VIDE SUR LES CÔTÉS -->
+  <div class="desktop-decorations" aria-hidden="true">
+    <!-- Côté Gauche -->
+    <div style="position: absolute; left: calc(50% - 390px); top: 120px; width: 56px; height: 56px; border-radius: 50%; background: #FFC83D; border: 3px solid #2A1E17; box-shadow: 4px 4px 0 #2A1E17; transform: rotate(-10deg);"></div>
+    <div style="position: absolute; left: calc(50% - 430px); top: 250px; transform: rotate(15deg);">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><path d="M24 4L29 17L42 19L32 29L35 42L24 35L13 42L16 29L6 19L19 17L24 4Z" fill="#2EC4B6" stroke="#2A1E17" stroke-width="3" stroke-linejoin="round"/></svg>
+    </div>
+    <div style="position: absolute; left: calc(50% - 370px); top: 400px; width: 36px; height: 36px; border-radius: 8px; background: #FF5A3C; border: 3px solid #2A1E17; box-shadow: 3px 3px 0 #2A1E17; transform: rotate(25deg);"></div>
+    <div style="position: absolute; left: calc(50% - 420px); top: 540px; width: 46px; height: 46px; border-radius: 50%; background: #FF8FB1; border: 3px solid #2A1E17; box-shadow: 3px 3px 0 #2A1E17;"></div>
+
+    <!-- Côté Droit -->
+    <div style="position: absolute; right: calc(50% - 390px); top: 140px; width: 50px; height: 50px; border-radius: 50%; background: #4DA3FF; border: 3px solid #2A1E17; box-shadow: 4px 4px 0 #2A1E17; transform: rotate(8deg);"></div>
+    <div style="position: absolute; right: calc(50% - 430px); top: 270px; transform: rotate(-12deg);">
+      <svg width="44" height="44" viewBox="0 0 48 48" fill="none"><path d="M24 4L29 17L42 19L32 29L35 42L24 35L13 42L16 29L6 19L19 17L24 4Z" fill="#FFC83D" stroke="#2A1E17" stroke-width="3" stroke-linejoin="round"/></svg>
+    </div>
+    <div style="position: absolute; right: calc(50% - 370px); top: 420px; width: 34px; height: 34px; border-radius: 8px; background: #8BD43A; border: 3px solid #2A1E17; box-shadow: 3px 3px 0 #2A1E17; transform: rotate(-18deg);"></div>
+    <div style="position: absolute; right: calc(50% - 420px); top: 560px; width: 48px; height: 48px; border-radius: 50%; background: #FF9A2E; border: 3px solid #2A1E17; box-shadow: 3px 3px 0 #2A1E17;"></div>
+  </div>
+
+  <div id="app-container">
+
+    <!-- EN-TÊTE CHALEUREUX AVEC MASCOTTE ZOZU ÉTENDUE ET CHEVAUCHEMENT -->
+    <header class="brand-header">
+      <div class="brand-mascot-wrap" title="La Mascotte Zozu !">
+        <!-- SVG MASCOTTE ZOZU 130PX AVEC LUNETTES-MOUSTACHE -->
+        <svg width="130" height="130" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Tête ronde crémeuse -->
+          <circle cx="40" cy="40" r="36" fill="#FFC83D" stroke="#2A1E17" stroke-width="4"/>
+          <!-- Chapeau melon d'infiltré -->
+          <path d="M22 22 C22 10 58 10 58 22 Z" fill="#2A1E17"/>
+          <ellipse cx="40" cy="22" rx="24" ry="4" fill="#2A1E17"/>
+          <rect x="27" y="18" width="26" height="4" fill="#FF5A3C"/>
+          <!-- Joues roses -->
+          <circle cx="21" cy="46" r="4.5" fill="#FF8FB1" opacity="0.8"/>
+          <circle cx="59" cy="46" r="4.5" fill="#FF8FB1" opacity="0.8"/>
+          <!-- Lunettes rondes de déguisement -->
+          <circle cx="30" cy="38" r="11" fill="#FFFFFF" stroke="#2A1E17" stroke-width="3.5"/>
+          <circle cx="50" cy="38" r="11" fill="#FFFFFF" stroke="#2A1E17" stroke-width="3.5"/>
+          <path d="M41 37 Q40 33 39 37" stroke="#2A1E17" stroke-width="3.5" stroke-linecap="round"/>
+          <!-- Pupilles expressives qui louchent discrètement -->
+          <circle cx="32" cy="38" r="3.5" fill="#2A1E17"/>
+          <circle cx="33" cy="36.5" r="1.2" fill="#FFFFFF"/>
+          <circle cx="48" cy="38" r="3.5" fill="#2A1E17"/>
+          <circle cx="49" cy="36.5" r="1.2" fill="#FFFFFF"/>
+          <!-- Gros nez de déguisement orange -->
+          <ellipse cx="40" cy="44" rx="6.5" ry="5.5" fill="#FF5A3C" stroke="#2A1E17" stroke-width="3"/>
+          <circle cx="42" cy="42.5" r="1.5" fill="#FFFFFF" opacity="0.7"/>
+          <!-- Moustache touffue et souriante -->
+          <path d="M40 48 C36 45 27 45 24 51 C30 55 37 53 40 50 C43 53 50 55 56 51 C53 45 44 45 40 48 Z" fill="#2A1E17"/>
+          <!-- Petit sourire complice sous la moustache -->
+          <path d="M36 55 Q40 58 44 55" stroke="#2A1E17" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <h1 class="brand-title">ZOZU</h1>
+      <p class="brand-tagline">Qui fait semblant autour de la table ?</p>
+    </header>
+
+    <!-- BANDEAU CONNEXION PERDUE / RECONNEXION -->
+    <div id="connection-banner" style="display: none; background: var(--accent-tomato); color: #FFF; padding: 10px 14px; border-radius: var(--radius-md); border: 3px solid #2A1E17; font-family: var(--font-title); font-size: 0.92rem; font-weight: 800; text-align: center; margin-bottom: 16px; box-shadow: var(--shadow-hard-sm); align-items: center; justify-content: center; gap: 8px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.58 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+      <span>Connexion perdue... Reconnexion en cours</span>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- SCREEN 1 : ACCUEIL -->
+    <!-- ===================================================================== -->
+    <section id="screen-home" class="screen active">
+      <div class="card-box tilt-left text-center" style="position: relative; padding-top: 26px;">
+        
+        <!-- ÉTIQUETTE RÈGLES COLLÉE AU COIN HAUT DROIT -->
+        <button class="card-sticker-btn" onclick="openRulesModal()" title="Lire les règles du jeu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Règles
+        </button>
+
+        <h2 style="font-family: var(--font-title); font-size: 1.45rem; font-weight: 700; margin-bottom: 6px; color: var(--text-brown);">
+          Prêts pour la partie ?
+        </h2>
+        <p style="font-size: 0.98rem; color: var(--text-muted); line-height: 1.45; font-weight: 700; margin-bottom: 20px;">
+          Un joueur reçoit une mission secrète : c'est <strong>le Zozu</strong>. Tous les autres mènent l'enquête pour le démasquer !
+        </p>
+
+        <!-- BOUTON HÉROS (PLUS GRAND, TEXTE PLUS GROS, LÉGÈRE INCLINAISON) -->
+        <button class="btn btn-tomato btn-hero" onclick="showScreen('screen-setup-local')">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="18" height="24" rx="3"/><line x1="14" y1="21" x2="14.01" y2="21"/></svg>
+          Jouer sur ce téléphone
+        </button>
+
+        <!-- BOUTONS SECONDAIRES ASYMÉTRIQUES INCLINÉS EN ALTERNANCE -->
+        <button class="btn btn-mint btn-tilt-neg mb-10" onclick="showScreen('screen-create-room')">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="9" r="5"/><path d="M3 24v-2a6 6 0 0 1 12 0v2"/><line x1="21" y1="9" x2="21" y2="17"/><line x1="17" y1="13" x2="25" y2="13"/></svg>
+          Créer un salon avec code
+        </button>
+
+        <button class="btn btn-mustard btn-tilt-pos mb-10" onclick="showScreen('screen-join-room')">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H5a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h6"/><polyline points="18 19 24 14 18 9"/><line x1="24" y1="14" x2="10" y2="14"/></svg>
+          Rejoindre un salon d'amis
+        </button>
+
+        <button class="btn btn-pink btn-tilt-neg2" onclick="openPwaModal()">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M23 17v5a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-5"/><polyline points="9 11 14 16 19 11"/><line x1="14" y1="16" x2="14" y2="3"/></svg>
+          Installer l'application (PWA)
+        </button>
+      </div>
+
+      <div class="mt-auto text-center" style="font-size: 0.88rem; font-weight: 800; color: var(--text-muted); padding: 10px 0;">
+        De 3 à 12 joueurs • Sans installation
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SCREEN 2 : CONFIGURATION JOUEURS (LOCAL PASS & PLAY) -->
+    <!-- ===================================================================== -->
+    <section id="screen-setup-local" class="screen">
+      <div class="card-box tilt-right text-center">
+        <h2 style="font-family: var(--font-title); font-size: 1.45rem; font-weight: 700; color: var(--text-brown); margin-bottom: 4px;">
+          Qui participe ?
+        </h2>
+
+        <!-- COMPTEUR [ - ] N [ + ] AVEC BOUTONS RONDS ÉPAIS -->
+        <div class="counter-box">
+          <button id="btn-count-minus" class="counter-btn" onclick="decrementPlayers()" title="Retirer un joueur" aria-label="Retirer un joueur">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2A1E17" stroke-width="3.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+
+          <div class="counter-display">
+            <span id="player-count-num" class="counter-number">4</span>
+            <span class="counter-label">joueurs</span>
+          </div>
+
+          <button id="btn-count-plus" class="counter-btn" onclick="incrementPlayers()" title="Ajouter un joueur" aria-label="Ajouter un joueur">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2A1E17" stroke-width="3.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+
+        <div class="counter-subtext">De 3 à 12 joueurs, idéal à 5-8</div>
+
+        <!-- SÉPARATEUR DISCRET -->
+        <div style="height: 2px; background: rgba(42, 30, 23, 0.08); margin: 6px 0 12px; border-radius: 2px;"></div>
+
+        <h3 style="font-family: var(--font-title); font-size: 1.15rem; font-weight: 700; color: var(--text-brown); margin-bottom: 2px;">
+          Nombre de Zozu
+        </h3>
+
+        <!-- COMPTEUR [ - ] N [ + ] ACCENT TOMATE -->
+        <div class="counter-box">
+          <button id="btn-zozu-minus" class="counter-btn counter-btn-tomato" onclick="decrementZozu()" title="Moins de Zozu" aria-label="Moins de Zozu">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2A1E17" stroke-width="3.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+
+          <div class="counter-display" style="align-items: center; min-width: 110px;">
+            <span id="zozu-count-num" class="counter-number" style="color: var(--accent-tomato);">1</span>
+            <div style="display: flex; flex-direction: column; align-items: flex-start; margin-left: 4px;">
+              <span id="zozu-count-unit" class="counter-label" style="font-size: 1rem; color: var(--text-brown);">Zozu</span>
+              <span id="zozu-recommended-badge" class="badge-recommended">Conseillé</span>
+            </div>
+          </div>
+
+          <button id="btn-zozu-plus" class="counter-btn counter-btn-tomato" onclick="incrementZozu()" title="Plus de Zozu" aria-label="Plus de Zozu">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2A1E17" stroke-width="3.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+
+        <div id="zozu-help-subtext" class="counter-subtext">Conseillé : 1 Zozu</div>
+
+        <!-- ID conservé pour compatibilité -->
+        <div id="player-count-label" style="display: none;">4 joueurs (3 à 12)</div>
+
+        <!-- LISTE SCROLLABLE PROPRE DE 3 À 12 JOUEURS -->
+        <div id="players-list-container" style="max-height: 38vh; overflow-y: auto; padding-right: 4px; margin-bottom: 16px; text-align: left;">
+          <!-- Injecté via renderPlayerInputs() avec pion SVG coloré -->
+        </div>
+
+        <button class="btn btn-tomato btn-tilt-neg mb-10" onclick="startLocalGame()">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 4 24 14 6 24 6 4"/></svg>
+          Distribuez les cartes !
+        </button>
+
+        <button class="btn btn-white btn-tilt-pos" onclick="showScreen('screen-home')">
+          <svg width="26" height="26" viewBox="0 0 28 28" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l10-8 10 8v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><polyline points="10 25 10 14 18 14 18 25"/></svg>
+          Retour à l'accueil
+        </button>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SCREEN 3 : PASSAGE DU TÉLÉPHONE AVEC DOS DE CARTE 3D -->
+    <!-- ===================================================================== -->
+    <section id="screen-pass-phone" class="screen">
+      <div id="pass-stage-card" class="card-flip-stage tilt-left" onclick="revealCurrentCard()">
+        <div id="pass-flip-inner" class="card-flip-inner">
+          
+          <!-- DOS DE CARTE À JOUER RÉTRO -->
+          <div class="card-face card-face-back" id="card-back-theme">
+            <div class="card-back-badge">
+              <div id="player-pawn-preview-back">
+                <!-- Pion du joueur en cours injecté dynamiquement -->
+              </div>
+              <p style="font-size: 0.88rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text-brown);">
+                Chut ! Passe le téléphone à
+              </p>
+              <h2 id="current-player-name-display" style="font-family: var(--font-title); font-size: 2.2rem; font-weight: 700; color: var(--text-brown); line-height: 1.1;">
+                Joueur 1
+              </h2>
+            </div>
+
+            <div style="margin-top: 24px; background: #FFFFFF; border: var(--border-solid); border-radius: var(--radius-pill); padding: 7px 18px; font-size: 0.88rem; font-weight: 800; box-shadow: var(--shadow-hard-sm); transform: rotate(-1deg);">
+              Interdit de regarder par-dessus l'épaule !
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <button id="btn-reveal-action" class="btn btn-mustard btn-tilt-pos" onclick="revealCurrentCard()">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 14s4.5-9 12-9 12 9 12 9-4.5 9-12 9-12-9-12-9z"/><circle cx="14" cy="14" r="4"/></svg>
+        À toi de jouer, clique pour voir ta carte !
+      </button>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SCREEN 4 : CARTE SECRÈTE RÉVÉLÉE (DÉBATTEUR OU ZOZU) -->
+    <!-- ===================================================================== -->
+    <section id="screen-card-revealed" class="screen">
+      <div id="role-card-box" class="card-box tilt-right text-center" style="min-height: 360px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;">
+        
+        <div id="revealed-player-badge" style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+          <!-- Badge joueur avec pion -->
+        </div>
+
+        <div id="role-badge-el" class="role-badge">
+          RÔLE SECRET
+        </div>
+
+        <h2 id="role-title-el" class="role-title">DÉBATTEUR</h2>
+        <p id="role-desc-el" class="role-desc">
+          Tu n'as aucune mission secrète. Débats sincèrement sur le sujet et démasque le Zozu !
+        </p>
+
+        <div id="mission-container-el" class="role-mission-box" style="display: none;">
+          <div class="mission-label">Ta mission secrète pour ce tour :</div>
+          <div id="mission-text-el" class="mission-text">Placer le mot "KANGOUROU" naturellement.</div>
+        </div>
+      </div>
+
+      <button id="btn-card-action" class="btn btn-tomato btn-tilt-neg" onclick="handleCardAction()">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 20.8A12 12 0 0 1 14 23c-7.5 0-12-9-12-9a21.5 21.5 0 0 1 5.9-6.9M11.5 4.9A10.8 10.8 0 0 1 14 4.6c7.5 0 12 9 12 9a21.5 21.5 0 0 1-2.5 3.7"/><line x1="2" y1="2" x2="26" y2="26"/></svg>
+        <span id="btn-card-action-text">J'ai mémorisé, cacher ma carte !</span>
+      </button>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SCREEN 5 : DÉBAT CHRONOMÉTRÉ -->
+    <!-- ===================================================================== -->
+    <section id="screen-debate" class="screen">
+      <div class="text-center">
+        <div class="round-tag" id="debate-round-tag">Manche 1</div>
+      </div>
+
+      <div class="topic-card">
+        <div class="topic-category" id="topic-cat-display">DÉBAT CLIVANT</div>
+        <h2 class="topic-title" id="topic-title-display">
+          Est-ce que la pizza à l'ananas mérite réellement d'exister ?
+        </h2>
+      </div>
+
+      <div class="timer-circle-wrap tilt-left">
+        <div class="timer-value timer-mint" id="timer-display">02:00</div>
+        <div class="timer-label">Temps de discussion restante</div>
+      </div>
+
+      <!-- JOUEURS AUTOUR DE LA TABLE (PIONS COLORÉS AVEC YEUX) -->
+      <div class="debate-players-dock">
+        <div style="font-family: var(--font-title); font-size: 0.88rem; font-weight: 700; color: var(--text-brown); margin-bottom: 8px;">
+          Joueurs autour de la table :
+        </div>
+        <div id="debate-players-pawns" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;">
+          <!-- Injecté dynamiquement par startDebateScreen() -->
+        </div>
+      </div>
+
+      <div class="card-box text-center" style="padding: 12px 14px; margin-bottom: 16px;">
+        <p style="font-size: 0.92rem; font-weight: 800; color: var(--text-brown);">
+          Ouvrez grand vos oreilles : qui place un mot farfelu ? qui hésite ?
+        </p>
+      </div>
+
+      <div id="debate-actions-bar" style="display: flex; gap: 10px; margin-top: auto;">
+        <button id="btn-timer-toggle" class="btn btn-mustard btn-tilt-neg" style="flex: 1;" onclick="toggleTimer()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16" rx="1.5"/><rect x="14" y="4" width="4" height="16" rx="1.5"/></svg>
+          Pause
+        </button>
+        <button id="btn-debate-action" class="btn btn-tomato btn-tilt-pos" style="flex: 2;" onclick="handleDebateAction()">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          <span id="btn-debate-action-text">Passer au vote !</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SCREEN 6 : VOTE D'ÉLIMINATION -->
+    <!-- ===================================================================== -->
+    <section id="screen-vote" class="screen">
+      <div class="text-center mb-16">
+        <h2 id="vote-title-heading" style="font-family: var(--font-title); font-size: 1.6rem; font-weight: 700; color: var(--text-brown);">
+          Qui est le Zozu ?
+        </h2>
+        <p id="vote-subtitle-text" style="font-size: 0.92rem; font-weight: 800; color: var(--text-muted); margin-top: 2px;">
+          Débattez à voix haute et touchez le joueur à éliminer !
+        </p>
+      </div>
+
+      <!-- ENCART SPECTATEUR (POUR LES JOUEURS ÉLIMINÉS EN LIGNE) -->
+      <div id="spectator-vote-box" style="display: none; background: var(--card-bg-subtle); border: 3px solid #2A1E17; border-radius: var(--radius-md); padding: 16px; text-align: center; margin-bottom: 16px; box-shadow: var(--shadow-hard-sm);">
+        <div style="font-family: var(--font-title); font-size: 1.25rem; font-weight: 800; color: var(--accent-tomato); margin-bottom: 6px;">
+          Tu as été éliminé !
+        </div>
+        <p style="font-size: 0.95rem; font-weight: 700; color: var(--text-brown); line-height: 1.4; margin: 0;">
+          Observe le vote en direct sans souffler d'indice autour de la table !
+        </p>
+      </div>
+
+      <!-- LISTE DES BOUTONS DE JOUEURS AUX COULEURS DÉDIÉES -->
+      <div id="voting-players-list" style="max-height: 48vh; overflow-y: auto; padding-right: 4px; margin-bottom: 16px;">
+        <!-- Injecté via renderVotingList() -->
+      </div>
+
+      <button id="btn-confirm-vote" class="btn btn-tomato btn-tilt-neg mt-auto" onclick="handleConfirmVote()" disabled>
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="14" cy="14" r="10"/><line x1="22" y1="6" x2="6" y2="22"/></svg>
+        <span id="btn-confirm-vote-text">Éliminer ce suspect !</span>
+      </button>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SCREEN 7 : RÉSULTAT & DÉNOUEMENT -->
+    <!-- ===================================================================== -->
+    <section id="screen-result" class="screen" style="position: relative;">
+      
+      <!-- CONTENEUR CONFETTIS LÉGERS -->
+      <div id="confetti-holder" class="confetti-container"></div>
+
+      <div id="result-banner-box" class="result-banner success tilt-left">
+        <!-- SVG MASCOTTE ADAPTÉE AU RÉSULTAT (DÉMASQUÉE OU GOGUENARDE) -->
+        <div class="result-icon" id="result-icon-display">
+          <!-- Injecté dynamiquement par updateResultMascot(isZozuCaught) -->
+        </div>
+
+        <h2 class="result-title" id="result-title-display">
+          Félicitations, ce joueur était le Zozu !
+        </h2>
+        <p class="result-desc" id="result-desc-display">
+          Sofiane a été démasqué par le groupe. Les Débatteurs remportent la manche !
+        </p>
+      </div>
+
+      <div id="mission-reveal-box" class="card-box tilt-right" style="display: none; text-align: center;">
+        <div class="mission-label" id="mission-reveal-heading">La mission secrète du Zozu était :</div>
+        <div id="revealed-mission-text" style="font-family: var(--font-title); font-size: 1.25rem; font-weight: 700; color: var(--accent-tomato); margin-top: 6px;">
+          Placer le mot "KANGOUROU"
+        </div>
+        <div id="revealed-zozus-list" style="margin-top: 12px; display: none;"></div>
+      </div>
+
+      <div id="result-actions" class="mt-auto">
+        <!-- Boutons rejouer ou manche suivante -->
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SCREEN 8 : CRÉER UN SALON EN LIGNE -->
+    <!-- ===================================================================== -->
+    <section id="screen-create-room" class="screen">
+      <div class="card-box tilt-right">
+        <h2 style="font-family: var(--font-title); font-size: 1.45rem; font-weight: 700; color: var(--text-brown); margin-bottom: 6px;">
+          Créer un salon d'amis
+        </h2>
+        <p style="font-size: 0.92rem; font-weight: 700; color: var(--text-muted); margin-bottom: 18px;">
+          Chaque joueur se connecte avec son propre téléphone sur le code de la salle !
+        </p>
+
+        <div style="margin-bottom: 18px;">
+          <label style="font-family: var(--font-title); font-size: 0.95rem; font-weight: 700; color: var(--text-brown); display: block; margin-bottom: 6px;">
+            Ton prénom (Hôte) :
+          </label>
+          <input id="create-host-name-input" type="text" class="player-input" style="background: var(--card-bg-subtle); padding: 12px 14px; border-radius: var(--radius-md); border: var(--border-solid); width: 100%; box-shadow: var(--shadow-hard-sm);" placeholder="Ex: Lucas...">
+        </div>
+
+        <button class="btn btn-mint btn-tilt-neg mb-10" onclick="apiCreateRoom()">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2v6m0 12v6M2 14h6m12 0h6"/><circle cx="14" cy="14" r="5"/></svg>
+          Générer la salle de jeu
+        </button>
+
+        <button class="btn btn-white btn-tilt-pos" onclick="showScreen('screen-home')">
+          <svg width="26" height="26" viewBox="0 0 28 28" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l10-8 10 8v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><polyline points="10 25 10 14 18 14 18 25"/></svg>
+          Retour à l'accueil
+        </button>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SCREEN 9 : SALLE D'ATTENTE LOBBY -->
+    <!-- ===================================================================== -->
+    <section id="screen-lobby" class="screen">
+      <div class="card-box text-center tilt-left">
+        <div style="font-family: var(--font-title); font-size: 0.9rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px;">
+          Code pour rejoindre le salon :
+        </div>
+        <div id="lobby-room-code" class="code-display">----</div>
+        <p style="font-size: 0.92rem; font-weight: 700; color: var(--text-brown); line-height: 1.4; margin-bottom: 12px;">
+          Dis à tes amis d'entrer ce code à 4 lettres sur leur propre téléphone !
+        </p>
+
+        <!-- BOUTONS COPIER LE CODE ET PARTAGER LE LIEN D'INVITATION -->
+        <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+          <button id="btn-copy-code" class="btn btn-white" style="padding: 8px 14px; font-size: 0.88rem; flex: 1; min-width: 130px;" onclick="copyRoomCode()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2A1E17" stroke-width="2.5" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span id="btn-copy-code-text">Copier le code</span>
+          </button>
+          <button id="btn-share-link" class="btn btn-mustard" style="padding: 8px 14px; font-size: 0.88rem; flex: 1; min-width: 130px;" onclick="shareRoomLink()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2A1E17" stroke-width="2.5" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            <span id="btn-share-link-text">Partager le lien</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="card-box tilt-right">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <h3 style="font-family: var(--font-title); font-size: 1.15rem; font-weight: 700; color: var(--text-brown);">Joueurs dans le salon</h3>
+          <span id="lobby-count-badge" style="font-family: var(--font-title); font-weight: 700; background: var(--accent-mustard); border: 2px solid var(--text-brown); padding: 2px 10px; border-radius: var(--radius-pill); font-size: 0.85rem;">1 / 12</span>
+        </div>
+
+        <div id="lobby-players-list" style="max-height: 32vh; overflow-y: auto; padding-right: 4px; margin-bottom: 14px;">
+          <!-- Injecté dynamiquement avec pions numérotés -->
+        </div>
+
+        <!-- SÉLECTEUR DU NOMBRE DE ZOZU POUR L'HÔTE -->
+        <div id="lobby-zozu-control" style="background: var(--card-bg-subtle); border: 2px solid var(--text-brown); border-radius: var(--radius-md); padding: 10px 12px; margin-bottom: 14px; text-align: center;">
+          <div style="font-family: var(--font-title); font-size: 0.95rem; font-weight: 700; color: var(--text-brown); margin-bottom: 4px;">
+            Nombre de Zozu pour la partie
+          </div>
+          <div class="counter-box" style="margin: 4px 0;">
+            <button id="btn-lobby-zozu-minus" class="counter-btn counter-btn-tomato" style="width: 44px; height: 44px;" onclick="decrementLobbyZozu()" aria-label="Moins de Zozu">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2A1E17" stroke-width="3.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <div class="counter-display" style="min-width: 90px; align-items: center;">
+              <span id="lobby-zozu-count-num" class="counter-number" style="font-size: 2.6rem; color: var(--accent-tomato);">1</span>
+              <span id="lobby-zozu-count-unit" class="counter-label" style="font-size: 0.95rem; color: var(--text-brown); margin-left: 4px;">Zozu</span>
+            </div>
+            <button id="btn-lobby-zozu-plus" class="counter-btn counter-btn-tomato" style="width: 44px; height: 44px;" onclick="incrementLobbyZozu()" aria-label="Plus de Zozu">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2A1E17" stroke-width="3.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+          <div id="lobby-zozu-help-subtext" style="font-size: 0.78rem; font-weight: 800; color: var(--text-muted);">Conseillé : 1 Zozu</div>
+        </div>
+
+        <button id="btn-start-online-game" class="btn btn-tomato btn-tilt-neg mb-10" onclick="startOnlineGame()" disabled>
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 4 24 14 6 24 6 4"/></svg>
+          Lancer la partie (min 3 joueurs)
+        </button>
+
+        <button class="btn btn-white btn-tilt-pos" onclick="leaveLobby()">
+          <svg width="26" height="26" viewBox="0 0 28 28" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h6"/><polyline points="18 19 24 14 18 9"/><line x1="24" y1="14" x2="10" y2="14"/></svg>
+          Quitter le salon
+        </button>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SCREEN 10 : REJOINDRE UN SALON -->
+    <!-- ===================================================================== -->
+    <section id="screen-join-room" class="screen">
+      <div class="card-box tilt-left">
+        <h2 style="font-family: var(--font-title); font-size: 1.45rem; font-weight: 700; color: var(--text-brown); margin-bottom: 6px;">
+          Rejoindre un salon
+        </h2>
+        <p style="font-size: 0.92rem; font-weight: 700; color: var(--text-muted); margin-bottom: 18px;">
+          Entre le code à 4 lettres affiché sur l'écran de ton ami.
+        </p>
+
+        <div style="margin-bottom: 16px;">
+          <label style="font-family: var(--font-title); font-size: 0.95rem; font-weight: 700; color: var(--text-brown); display: block; margin-bottom: 6px;">Code du salon (4 lettres) :</label>
+          <input id="join-code-input" type="text" class="player-input" style="background: var(--card-bg-subtle); padding: 12px 14px; border-radius: var(--radius-md); border: var(--border-solid); width: 100%; text-transform: uppercase; font-family: var(--font-title); font-size: 1.6rem; letter-spacing: 6px; text-align: center; box-shadow: var(--shadow-hard-sm);" placeholder="ABCD" maxlength="4">
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <label style="font-family: var(--font-title); font-size: 0.95rem; font-weight: 700; color: var(--text-brown); display: block; margin-bottom: 6px;">Ton prénom :</label>
+          <input id="join-name-input" type="text" class="player-input" style="background: var(--card-bg-subtle); padding: 12px 14px; border-radius: var(--radius-md); border: var(--border-solid); width: 100%; box-shadow: var(--shadow-hard-sm);" placeholder="Ex: Sarah...">
+        </div>
+
+        <button class="btn btn-mustard btn-tilt-neg mb-10" onclick="apiJoinRoom()">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h6a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2h-6"/><polyline points="10 9 4 14 10 19"/><line x1="4" y1="14" x2="18" y2="14"/></svg>
+          Rejoindre la partie
+        </button>
+
+        <button class="btn btn-white btn-tilt-pos" onclick="showScreen('screen-home')">
+          <svg width="26" height="26" viewBox="0 0 28 28" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l10-8 10 8v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><polyline points="10 25 10 14 18 14 18 25"/></svg>
+          Retour à l'accueil
+        </button>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODALE RÈGLES DU JEU (CHALEUREUSE, CONTOUR BRUN, OMBRE DURE) -->
+  <!-- ===================================================================== -->
+  <div id="rules-modal" class="modal-overlay" onclick="closeRulesModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title">Règles du jeu ZOZU</div>
+        <button class="close-icon-btn" onclick="closeRulesModal()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="rule-step">
+        <div class="rule-step-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+          1. Le principe du jeu
+        </div>
+        <div class="rule-step-desc">
+          ZOZU est un jeu de déduction sociale et de débat oral de 3 à 12 joueurs. Tout le monde débat sur un sujet imposé pendant 2 minutes chrono.
+        </div>
+      </div>
+
+      <div class="rule-step">
+        <div class="rule-step-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          2. Les Rôles secrets & Choix des Zozu
+        </div>
+        <div class="rule-step-desc">
+          • <strong>Les Débatteurs :</strong> Ils n'ont AUCUNE mission. Ils débattent sincèrement et doivent démasquer tous les Zozu.<br><br>
+          • <strong>Les Zozu (de 1 à plusieurs) :</strong> Le nombre de Zozu est librement choisi (conseillé : 1 pour 3-5 joueurs, 1-2 pour 6-8, 2-3 pour 9-12). Chaque Zozu reçoit <em>sa propre mission secrète</em> différente. Les Zozu ne se connaissent pas entre eux et ne doivent pas se faire griller !
+        </div>
+      </div>
+
+      <div class="rule-step">
+        <div class="rule-step-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          3. Le Débat (2 minutes)
+        </div>
+        <div class="rule-step-desc">
+          Discutez librement. Écoutez bien chaque argument : pourquoi untel insiste sur un mot incongru ? Pourquoi change-t-il d'avis ?
+        </div>
+      </div>
+
+      <div class="rule-step">
+        <div class="rule-step-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          4. Le Vote & Conditions de Victoire
+        </div>
+        <div class="rule-step-desc">
+          • <strong>Victoire des Débatteurs :</strong> Tous les Zozu ont été éliminés.<br><br>
+          • <strong>Un Zozu éliminé mais il en reste :</strong> La partie continue ! Les Zozu survivants reçoivent de nouvelles missions pour la manche suivante.<br><br>
+          • <strong>Victoire des Zozu :</strong> Il reste autant ou plus de Zozu que d'innocents vivants (Zozu vivants &ge; Innocents vivants).
+        </div>
+      </div>
+
+      <button class="btn btn-mustard" style="margin-top: 14px;" onclick="closeRulesModal()">
+        C'est parti, j'ai compris !
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODALE INSTALLATION PWA (CHALEUREUSE, CONTOUR BRUN) -->
+  <!-- ===================================================================== -->
+  <div id="pwa-modal" class="modal-overlay" onclick="closePwaModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title">Installer l'application ZOZU</div>
+        <button class="close-icon-btn" onclick="closePwaModal()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <p style="font-size: 0.95rem; font-weight: 700; color: var(--text-brown); line-height: 1.45; margin-bottom: 16px;">
+        Installez ZOZU sur votre écran d'accueil pour jouer en plein écran, comme une vraie application de jeu de société, même sans réseau !
+      </p>
+
+      <button id="btn-pwa-direct-install" class="btn btn-tomato mb-16" onclick="triggerPwaInstall()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Installer sur cet appareil
+      </button>
+
+      <div class="rule-step">
+        <div class="rule-step-title">Sur iPhone / iPad (Safari)</div>
+        <div class="rule-step-desc">
+          Appuyez sur l'icône <strong>Partager</strong> (le carré avec la flèche vers le haut), puis faites défiler et touchez <strong>Sur l'écran d'accueil</strong>.
+        </div>
+      </div>
+
+      <div class="rule-step">
+        <div class="rule-step-title">Sur Android (Chrome)</div>
+        <div class="rule-step-desc">
+          Appuyez sur le menu (3 petits points en haut à droite), puis sélectionnez <strong>Installer l'application</strong> ou <strong>Ajouter à l'écran d'accueil</strong>.
+        </div>
+      </div>
+
+      <div class="rule-step">
+        <div class="rule-step-title">Sur Ordinateur (Chrome / Edge)</div>
+        <div class="rule-step-desc">
+          Cliquez sur la petite icône d'installation située tout à droite dans votre barre d'adresse.
+        </div>
+      </div>
+
+      <button class="btn btn-white" style="margin-top: 14px;" onclick="closePwaModal()">
+        Fermer
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // --- LES 12 COULEURS OFFICIELLES DES JOUEURS (STABILITÉ ABSOLUE) ---
+    // =========================================================================
+    const PLAYER_COLORS = [
+      { id: 1, name: "Tomate", hex: "#FF5A3C", textColor: "#2A1E17" },
+      { id: 2, name: "Moutarde", hex: "#FFC83D", textColor: "#2A1E17" },
+      { id: 3, name: "Menthe", hex: "#2EC4B6", textColor: "#2A1E17" },
+      { id: 4, name: "Rose", hex: "#FF8FB1", textColor: "#2A1E17" },
+      { id: 5, name: "Bleu ciel", hex: "#4DA3FF", textColor: "#2A1E17" },
+      { id: 6, name: "Violet", hex: "#9B6BFF", textColor: "#2A1E17" },
+      { id: 7, name: "Vert pomme", hex: "#8BD43A", textColor: "#2A1E17" },
+      { id: 8, name: "Orange", hex: "#FF9A2E", textColor: "#2A1E17" },
+      { id: 9, name: "Turquoise foncé", hex: "#1B8A9E", textColor: "#2A1E17" },
+      { id: 10, name: "Bordeaux", hex: "#C23B5A", textColor: "#2A1E17" },
+      { id: 11, name: "Lavande", hex: "#C9B5FF", textColor: "#2A1E17" },
+      { id: 12, name: "Marron caramel", hex: "#B7793F", textColor: "#2A1E17" }
+    ];
+
+    function getPlayerColor(colorIndex) {
+      const idx = ((colorIndex - 1) % PLAYER_COLORS.length + PLAYER_COLORS.length) % PLAYER_COLORS.length;
+      return PLAYER_COLORS[idx];
+    }
+
+    // PION SVG AVEC CONTOUR BRUN 3PX ET PETITS YEUX
+    function createPawnSvg(hexColor, size = 32) {
+      return `
+        <svg width="${size}" height="${size}" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="18" cy="18" r="16" fill="${hexColor}" stroke="#2A1E17" stroke-width="3"/>
+          <ellipse cx="13" cy="16.5" rx="2.5" ry="3.5" fill="#2A1E17"/>
+          <ellipse cx="23" cy="16.5" rx="2.5" ry="3.5" fill="#2A1E17"/>
+          <circle cx="14" cy="15" r="1" fill="#FFFFFF"/>
+          <circle cx="24" cy="15" r="1" fill="#FFFFFF"/>
+          <path d="M15 23 Q18 25.5 21 23" stroke="#2A1E17" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+      `;
+    }
+
+    // MASCOTTE ZOZU SELON RÉSULTAT (DÉMASQUÉ OU GOGUENARD)
+    function getResultMascotSvg(isCaught) {
+      if (isCaught) {
+        // Zozu démasqué (yeux ronds surpris, lunettes de travers, étourdi)
+        return `
+          <svg width="84" height="84" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="40" cy="40" r="36" fill="#2EC4B6" stroke="#2A1E17" stroke-width="4"/>
+            <!-- Étoiles de surprise -->
+            <path d="M16 16 L20 20 M20 16 L16 20" stroke="#FF5A3C" stroke-width="3" stroke-linecap="round"/>
+            <path d="M60 16 L64 20 M64 16 L60 20" stroke="#FFC83D" stroke-width="3" stroke-linecap="round"/>
+            <!-- Lunettes légèrement de travers -->
+            <g transform="rotate(-6 40 38)">
+              <circle cx="30" cy="38" r="11" fill="#FFFFFF" stroke="#2A1E17" stroke-width="3.5"/>
+              <circle cx="50" cy="38" r="11" fill="#FFFFFF" stroke="#2A1E17" stroke-width="3.5"/>
+              <path d="M41 37 Q40 33 39 37" stroke="#2A1E17" stroke-width="3.5"/>
+              <!-- Yeux grands ouverts de surprise -->
+              <circle cx="30" cy="38" r="4.5" fill="#2A1E17"/>
+              <circle cx="31.5" cy="36.5" r="1.5" fill="#FFFFFF"/>
+              <circle cx="50" cy="38" r="4.5" fill="#2A1E17"/>
+              <circle cx="51.5" cy="36.5" r="1.5" fill="#FFFFFF"/>
+              <!-- Gros nez rouge -->
+              <ellipse cx="40" cy="44" rx="6.5" ry="5.5" fill="#FF5A3C" stroke="#2A1E17" stroke-width="3"/>
+              <!-- Moustache tombante -->
+              <path d="M40 48 C36 46 26 50 22 55 C28 56 36 52 40 50 C44 52 52 56 58 55 C54 50 44 46 40 48 Z" fill="#2A1E17"/>
+              <!-- Bouche en O de surprise -->
+              <ellipse cx="40" cy="57" rx="4" ry="5" fill="#2A1E17"/>
+            </g>
+          </svg>
+        `;
+      } else {
+        // Zozu triomphant & goguenard (clin d'oeil malicieux, sourire sous la moustache)
+        return `
+          <svg width="84" height="84" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="40" cy="40" r="36" fill="#FF5A3C" stroke="#2A1E17" stroke-width="4"/>
+            <!-- Lunettes -->
+            <circle cx="30" cy="38" r="11" fill="#FFFFFF" stroke="#2A1E17" stroke-width="3.5"/>
+            <circle cx="50" cy="38" r="11" fill="#FFFFFF" stroke="#2A1E17" stroke-width="3.5"/>
+            <path d="M41 37 Q40 33 39 37" stroke="#2A1E17" stroke-width="3.5"/>
+            <!-- Œil gauche ouvert et malicieux -->
+            <circle cx="32" cy="38" r="3.5" fill="#2A1E17"/>
+            <circle cx="33" cy="36.5" r="1.2" fill="#FFFFFF"/>
+            <!-- Œil droit clin d'œil malicieux (arc fermé) -->
+            <path d="M46 38 Q50 34 54 38" stroke="#2A1E17" stroke-width="3.5" stroke-linecap="round"/>
+            <!-- Gros nez orange -->
+            <ellipse cx="40" cy="44" rx="6.5" ry="5.5" fill="#FFC83D" stroke="#2A1E17" stroke-width="3"/>
+            <!-- Moustache fière et relevée -->
+            <path d="M40 48 C36 45 27 43 23 48 C29 53 37 51 40 49 C43 51 51 53 57 48 C53 43 44 45 40 48 Z" fill="#2A1E17"/>
+            <!-- Grand sourire complice -->
+            <path d="M35 56 Q40 61 46 55" stroke="#2A1E17" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        `;
+      }
+    }
+
+    // =========================================================================
+    // --- BANQUE DE DÉBATS (EXTENSIBLE À L'INFINI) ---
+    // =========================================================================
+    const DEBATE_TOPICS = [
+      { cat: "Quotidien & Débats absurdes", title: "Est-ce que la pizza à l'ananas mérite réellement d'exister ?" },
+      { cat: "Quotidien & Débats absurdes", title: "Faut-il légalement interdire les réveils avant 9h du matin ?" },
+      { cat: "Quotidien & Débats absurdes", title: "Les gens qui applaudissent à l'atterrissage de l'avion : héros ou malaise ?" },
+      { cat: "Quotidien & Débats absurdes", title: "Mettre les céréales avant le lait ou le lait avant les céréales ?" },
+      { cat: "Quotidien & Débats absurdes", title: "Est-ce acceptable de porter des chaussettes avec des claquettes en public ?" },
+      { cat: "Quotidien & Débats absurdes", title: "Dormir avec la porte de sa chambre ouverte : folie ou liberté ?" },
+      { cat: "Quotidien & Débats absurdes", title: "Peut-on considérer le ketchup comme une confiture de tomates ?" },
+      { cat: "Dilemmes impossibles", title: "Vaudrait-il mieux pouvoir voler ou devenir invisible à volonté ?" },
+      { cat: "Dilemmes impossibles", title: "Préféreriez-vous vivre 100 ans dans le passé ou 100 ans dans le futur ?" },
+      { cat: "Dilemmes impossibles", title: "Ne plus jamais pouvoir écouter de musique ou ne plus jamais pouvoir regarder de films ?" },
+      { cat: "Dilemmes impossibles", title: "Avoir le pouvoir de parler à tous les animaux ou parler toutes les langues du monde ?" },
+      { cat: "Dilemmes impossibles", title: "Savoir exactement le jour de sa mort ou savoir comment on va mourir ?" },
+      { cat: "Vie en société & Soirée", title: "Le pire cadeau d'anniversaire qu'un ami puisse t'offrir ?" },
+      { cat: "Vie en société & Soirée", title: "Peut-on rester ami avec son ex sans que ce soit bizarre ?" },
+      { cat: "Vie en société & Soirée", title: "Est-ce malpoli de regarder son téléphone pendant un dîner entre amis ?" },
+      { cat: "Vie en société & Soirée", title: "Qui devrait payer l'addition lors d'un tout premier rendez-vous ?" },
+      { cat: "Vie en société & Soirée", title: "L'art de s'éclipser d'une soirée sans dire au revoir à personne : coup de maître ou manque de respect ?" },
+      { cat: "Pop Culture & Cinéma", title: "Quel est le film le plus surcoté de l'histoire du cinéma ?" },
+      { cat: "Pop Culture & Cinéma", title: "Si vous deviez vivre dans l'univers d'un jeu vidéo, lequel choisiriez-vous ?" },
+      { cat: "Pop Culture & Cinéma", title: "Est-ce que les suites de films sont quasiment toujours moins bonnes que l'original ?" },
+      { cat: "Pop Culture & Cinéma", title: "Les super-héros font-ils finalement plus de dégâts que les super-vilains ?" },
+      { cat: "Technologie & Futur", title: "L'Intelligence Artificielle va-t-elle rendre les humains fainéants ou géniaux ?" },
+      { cat: "Technologie & Futur", title: "Pourrait-on survivre une semaine entière sans smartphone ni Internet ?" },
+      { cat: "Technologie & Futur", title: "Les robots auront-ils un jour le droit de vote ?" }
+    ];
+
+    // =========================================================================
+    // --- BANQUE DE MISSIONS POUR LE ZOZU (EXTENSIBLE À L'INFINI) ---
+    // =========================================================================
+    const ZOZU_MISSIONS = [
+      { type: "Mot secret", text: 'Placer le mot "KANGOUROU" naturellement dans un argument.' },
+      { type: "Mot secret", text: 'Placer le mot "BROUETTE" sans faire rire la table.' },
+      { type: "Mot secret", text: 'Placer le mot "TRACTEUR" au milieu d\'une phrase.' },
+      { type: "Mot secret", text: 'Placer le mot "ASTRONAUTE" de manière crédible.' },
+      { type: "Mot secret", text: 'Placer le mot "PAMPLEMOUSSE" en parlant du sujet.' },
+      { type: "Mot secret", text: 'Placer le mot "PIRATE" ou "TRÉSOR" naturellement.' },
+      { type: "Mot secret", text: 'Placer le mot "TROMPETTE" dans tes explications.' },
+      { type: "Mot secret", text: 'Placer le mot "CACAHUÈTE" l\'air de rien.' },
+      { type: "Comportement", text: 'Approuver avec insistance tout ce que dit la personne en face de toi.' },
+      { type: "Comportement", text: 'Faire un compliment très appuyé à quelqu\'un au milieu d\'un argument.' },
+      { type: "Comportement", text: 'Commencer deux de tes arguments par : "Mon grand-père me disait toujours...".' },
+      { type: "Comportement", text: 'Changer radicalement d\'avis au milieu du débat en disant : "Finalement, vous m\'avez convaincu".' },
+      { type: "Comportement", text: 'Répéter exactement un mot savant prononcé par un autre joueur.' },
+      { type: "Comportement", text: 'Prétendre avoir une anecdote vécue totalement folle et improbable sur le sujet.' },
+      { type: "Comportement", text: 'Poser une question directe à la personne la plus discrète de la table.' },
+      { type: "Comportement", text: 'Utiliser 3 fois l\'expression "D\'un point de vue purement scientifique".' },
+      { type: "Mot secret", text: 'Placer le mot "DINOSAURE" dans une comparaison.' },
+      { type: "Mot secret", text: 'Placer le mot "CROISSANT" ou "BAGUETTE" mine de rien.' },
+      { type: "Mot secret", text: 'Placer le mot "TÉLESCOPE" ou "GALAXIE" avec aplomb.' },
+      { type: "Mot secret", text: 'Placer le mot "CHOU-FLEUR" au détour d\'une phrase.' },
+      { type: "Comportement", text: 'Hoqueter discrètement ou feindre un micro-bâillement au moment de parler.' },
+      { type: "Comportement", text: 'Contredire le dernier argument en commençant par : "Historiquement parlant...".' },
+      { type: "Comportement", text: 'Demander à la cantonade : "Attendez, quelqu\'un a l\'heure ?" en plein débat.' },
+      { type: "Comportement", text: 'Valider un argument en levant deux pouces avec un sourire très sérieux.' }
+    ];
+
+    // =========================================================================
+    // --- EFFETS SONORES WEB AUDIO ---
+    // =========================================================================
+    const Sound = {
+      ctx: null,
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      },
+      playTick() {
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+        gain.gain.setValueAtTime(0.09, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.05);
+      },
+      playGong() {
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(260, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(110, this.ctx.currentTime + 1.2);
+        gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 1.2);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 1.2);
+      },
+      playWin() {
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        [440, 554, 659, 880].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+          gain.gain.setValueAtTime(0.18, now + idx * 0.1);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.4);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.1);
+          osc.stop(now + idx * 0.1 + 0.4);
+        });
+      },
+      playFail() {
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        [300, 260, 210].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.15);
+          gain.gain.setValueAtTime(0.14, now + idx * 0.15);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.15 + 0.3);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.15);
+          osc.stop(now + idx * 0.15 + 0.3);
+        });
+      }
+    };
+
+    // =========================================================================
+    // --- ÉTAT DU JEU LOCAL (PASS & PLAY) ---
+    // =========================================================================
+    let localPlayers = ["", "", "", ""]; // 4 joueurs vierges par défaut
+    let zozuCount = 1;
+    let userHasChosenZozu = false;
+    let lobbyZozuCount = 1;
+    let userHasChosenLobbyZozu = false;
+    let lastKnownRoomPlayerCount = 1;
+    let myPlayerId = null;
+    let isHost = false;
+
+    let gameState = {
+      round: 1,
+      players: [],        // { id, name, colorIndex, isZozu, mission, eliminated: false }
+      currentCardIndex: 0,
+      currentTopic: null,
+      zozuMission: null,
+      selectedVoteId: null,
+      timerSeconds: 120,
+      timerInterval: null,
+      isTimerRunning: false
+    };
+
+    function getMaxZozu(playerCount) {
+      return Math.max(1, Math.floor((playerCount - 1) / 2));
+    }
+
+    function getRecommendedZozuRange(playerCount) {
+      if (playerCount <= 5) return [1, 1];
+      if (playerCount <= 8) return [1, 2];
+      return [2, 3];
+    }
+
+    function updateZozuBounds() {
+      const pCount = localPlayers.length;
+      const maxZ = getMaxZozu(pCount);
+      if (!userHasChosenZozu) {
+        zozuCount = (pCount >= 6 ? 2 : 1);
+      }
+      if (zozuCount > maxZ) zozuCount = maxZ;
+      if (zozuCount < 1) zozuCount = 1;
+      renderZozuCounter();
+    }
+
+    function incrementZozu() {
+      const maxZ = getMaxZozu(localPlayers.length);
+      if (zozuCount < maxZ) {
+        zozuCount++;
+        userHasChosenZozu = true;
+        renderZozuCounter();
+      }
+    }
+
+    function decrementZozu() {
+      if (zozuCount > 1) {
+        zozuCount--;
+        userHasChosenZozu = true;
+        renderZozuCounter();
+      }
+    }
+
+    function renderZozuCounter() {
+      const pCount = localPlayers.length;
+      const maxZ = getMaxZozu(pCount);
+      const [minRec, maxRec] = getRecommendedZozuRange(pCount);
+
+      const numEl = document.getElementById('zozu-count-num');
+      if (numEl) numEl.innerText = zozuCount;
+
+      const unitEl = document.getElementById('zozu-count-unit');
+      if (unitEl) unitEl.innerText = (zozuCount > 1 ? 'Zozus' : 'Zozu');
+
+      const btnMinus = document.getElementById('btn-zozu-minus');
+      if (btnMinus) btnMinus.disabled = (zozuCount <= 1);
+
+      const btnPlus = document.getElementById('btn-zozu-plus');
+      if (btnPlus) btnPlus.disabled = (zozuCount >= maxZ);
+
+      const badge = document.getElementById('zozu-rec-badge');
+      const subtext = document.getElementById('zozu-help-subtext');
+
+      if (zozuCount >= minRec && zozuCount <= maxRec) {
+        if (badge) badge.style.display = 'inline-flex';
+        if (subtext) {
+          if (minRec === maxRec) {
+            subtext.innerText = `Conseillé : ${minRec} Zozu pour ${pCount} joueurs.`;
+          } else {
+            subtext.innerText = `Conseillé : ${minRec} à ${maxRec} Zozus pour ${pCount} joueurs.`;
+          }
+        }
+      } else {
+        if (badge) badge.style.display = 'none';
+        if (subtext) {
+          if (zozuCount > maxRec) {
+            subtext.innerText = `Mode chaos : ${zozuCount} Zozus, ça va être très sportif !`;
+          } else {
+            subtext.innerText = `Mode zen : un seul Zozu pour ${pCount} joueurs, bon courage aux espions !`;
+          }
+        }
+      }
+    }
+
+    function updateLobbyZozuBounds(pCount) {
+      const maxZ = getMaxZozu(pCount);
+      if (!userHasChosenLobbyZozu) {
+        lobbyZozuCount = (pCount >= 6 ? 2 : 1);
+      }
+      if (lobbyZozuCount > maxZ) lobbyZozuCount = maxZ;
+      if (lobbyZozuCount < 1) lobbyZozuCount = 1;
+      renderLobbyZozuCounter(pCount);
+    }
+
+    function incrementLobbyZozu() {
+      const roomPlayerCount = lastKnownRoomPlayerCount || 3;
+      const maxZ = getMaxZozu(roomPlayerCount);
+      if (lobbyZozuCount < maxZ) {
+        lobbyZozuCount++;
+        userHasChosenLobbyZozu = true;
+        renderLobbyZozuCounter(roomPlayerCount);
+      }
+    }
+
+    function decrementLobbyZozu() {
+      if (lobbyZozuCount > 1) {
+        lobbyZozuCount--;
+        userHasChosenLobbyZozu = true;
+        renderLobbyZozuCounter(lastKnownRoomPlayerCount || 3);
+      }
+    }
+
+    function renderLobbyZozuCounter(pCount) {
+      lastKnownRoomPlayerCount = pCount;
+      const maxZ = getMaxZozu(pCount);
+      const [minRec, maxRec] = getRecommendedZozuRange(pCount);
+
+      const numEl = document.getElementById('lobby-zozu-count-num');
+      if (numEl) numEl.innerText = lobbyZozuCount;
+
+      const unitEl = document.getElementById('lobby-zozu-count-unit');
+      if (unitEl) unitEl.innerText = (lobbyZozuCount > 1 ? 'Zozus' : 'Zozu');
+
+      const btnMinus = document.getElementById('btn-lobby-zozu-minus');
+      if (btnMinus) btnMinus.disabled = (lobbyZozuCount <= 1);
+
+      const btnPlus = document.getElementById('btn-lobby-zozu-plus');
+      if (btnPlus) btnPlus.disabled = (lobbyZozuCount >= maxZ);
+
+      const subtext = document.getElementById('lobby-zozu-help-subtext');
+      if (subtext) {
+        if (lobbyZozuCount >= minRec && lobbyZozuCount <= maxRec) {
+          subtext.innerText = `Conseillé : ${minRec === maxRec ? minRec : minRec + ' à ' + maxRec} Zozu${maxRec > 1 ? 's' : ''}`;
+        } else if (lobbyZozuCount > maxRec) {
+          subtext.innerText = `Mode chaos : ${lobbyZozuCount} Zozus, partie sportive !`;
+        } else {
+          subtext.innerText = `Mode zen : ${lobbyZozuCount} Zozu pour ${pCount} joueurs.`;
+        }
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderPlayerInputs();
+
+      // Support des paramètres d'URL pour les tests et la capture
+      const params = new URLSearchParams(window.location.search);
+      const testScreen = params.get('screen');
+      const testCount = parseInt(params.get('players') || '12', 10);
+      const testZozus = params.get('zozus') ? parseInt(params.get('zozus'), 10) : null;
+      const testVote = params.get('vote') || 'zozu';
+
+      // Deep-link d'invitation ?room=ABCD
+      const roomParam = params.get('room');
+      if (roomParam && !testScreen) {
+        const joinInput = document.getElementById('join-code-input');
+        if (joinInput) joinInput.value = roomParam.trim().toUpperCase();
+        showScreen('screen-join-room');
+        return;
+      }
+
+      // Reprise automatique de session en ligne après rafraîchissement ou retour de veille
+      const savedSession = getOnlineSession();
+      if (savedSession && savedSession.roomCode && savedSession.playerId && savedSession.token && !testScreen) {
+        isOnlineMode = true;
+        currentRoomCode = savedSession.roomCode;
+        myPlayerId = savedSession.playerId;
+        myToken = savedSession.token;
+        isHost = !!savedSession.isHost;
+        startOnlinePolling();
+        return;
+      }
+
+      if (testZozus !== null) {
+        zozuCount = testZozus;
+        userHasChosenZozu = true;
+      }
+
+      if (testScreen) {
+        if (testScreen === 'screen-setup-local') {
+          setPlayerPreset(testCount);
+          if (testZozus !== null) {
+            zozuCount = testZozus;
+            userHasChosenZozu = true;
+            renderZozuCounter();
+          }
+          showScreen('screen-setup-local');
+        } else if (testScreen === 'screen-card-revealed') {
+          setPlayerPreset(testCount);
+          if (testZozus !== null) zozuCount = testZozus;
+          startLocalGame();
+          revealCurrentCard();
+        } else if (testScreen === 'screen-vote') {
+          setPlayerPreset(testCount);
+          if (testZozus !== null) zozuCount = testZozus;
+          startLocalGame();
+          renderVotingList();
+          showScreen('screen-vote');
+        } else if (testScreen === 'screen-result') {
+          setPlayerPreset(testCount);
+          if (testZozus !== null) zozuCount = testZozus;
+          startLocalGame();
+          let target = null;
+          if (testVote === 'innocent') {
+            target = gameState.players.find(p => !p.isZozu);
+          } else {
+            target = gameState.players.find(p => p.isZozu);
+          }
+          if (target) {
+            gameState.selectedVoteId = target.id;
+            confirmEliminationVote();
+          }
+        } else {
+          showScreen(testScreen);
+        }
+      }
+    });
+
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      const target = document.getElementById(screenId);
+      if (target) target.classList.add('active');
+
+      const header = document.querySelector('.brand-header');
+      if (header) {
+        if (screenId === 'screen-home') {
+          header.classList.remove('compact');
+        } else {
+          header.classList.add('compact');
+        }
+      }
+      window.scrollTo(0, 0);
+    }
+
+    function openRulesModal() {
+      document.getElementById('rules-modal').classList.add('active');
+    }
+    function closeRulesModal(e) {
+      if (!e || e.target.id === 'rules-modal' || e.target.closest('.close-icon-btn') || e.target.tagName === 'BUTTON') {
+        document.getElementById('rules-modal').classList.remove('active');
+      }
+    }
+
+    function openPwaModal() {
+      document.getElementById('pwa-modal').classList.add('active');
+    }
+    function closePwaModal(e) {
+      if (!e || e.target.id === 'pwa-modal' || e.target.closest('.close-icon-btn') || e.target.tagName === 'BUTTON') {
+        document.getElementById('pwa-modal').classList.remove('active');
+      }
+    }
+
+    function incrementPlayers() {
+      addPlayerInput();
+    }
+
+    function decrementPlayers() {
+      if (localPlayers.length <= 3) return;
+      removePlayer(localPlayers.length - 1);
+    }
+
+    // LISTE DES JOUEURS DANS LE SETUP (AVEC PIONS COLORÉS ET COMPTEUR)
+    function renderPlayerInputs() {
+      const container = document.getElementById('players-list-container');
+      container.innerHTML = '';
+
+      localPlayers.forEach((name, index) => {
+        const playerColor = getPlayerColor(index + 1);
+        const row = document.createElement('div');
+        row.className = 'player-row';
+        row.innerHTML = `
+          <div class="player-pawn" style="background: ${playerColor.hex};">
+            ${createPawnSvg(playerColor.hex, 28)}
+          </div>
+          <input type="text" class="player-input" value="${escapeHtml(name)}" oninput="updatePlayerName(${index}, this.value)" placeholder="Prénom du joueur ${index + 1}...">
+          ${localPlayers.length > 3 ? `
+            <button class="player-delete-btn" onclick="removePlayer(${index})" title="Supprimer ce joueur">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          ` : ''}
+        `;
+        container.appendChild(row);
+      });
+
+      // Mise à jour de l'affichage du compteur et des boutons [-] / [+]
+      const numEl = document.getElementById('player-count-num');
+      if (numEl) numEl.innerText = localPlayers.length;
+
+      const btnMinus = document.getElementById('btn-count-minus');
+      if (btnMinus) btnMinus.disabled = (localPlayers.length <= 3);
+
+      const btnPlus = document.getElementById('btn-count-plus');
+      if (btnPlus) btnPlus.disabled = (localPlayers.length >= 12);
+
+      const countLabel = document.getElementById('player-count-label');
+      if (countLabel) countLabel.innerText = `${localPlayers.length} joueurs (3 à 12)`;
+
+      updateZozuBounds();
+    }
+
+    function addPlayerInput() {
+      if (localPlayers.length >= 12) {
+        return;
+      }
+      localPlayers.push("");
+      renderPlayerInputs();
+    }
+
+    function removePlayer(idx) {
+      if (localPlayers.length <= 3) return;
+      localPlayers.splice(idx, 1);
+      renderPlayerInputs();
+    }
+
+    function updatePlayerName(idx, val) {
+      localPlayers[idx] = val;
+    }
+
+    function setPlayerPreset(count) {
+      const old = [...localPlayers];
+      localPlayers = [];
+      for (let i = 0; i < count; i++) {
+        localPlayers.push(old[i] || "");
+      }
+      renderPlayerInputs();
+    }
+
+    // =========================================================================
+    // --- DISTRIBUTION ET PASS & PLAY ---
+    // =========================================================================
+    function startLocalGame() {
+      Sound.init();
+
+      const pCount = localPlayers.length;
+      const maxZ = getMaxZozu(pCount);
+      const targetZozuCount = Math.max(1, Math.min(zozuCount, maxZ));
+
+      // Tirage aléatoire sans remise de targetZozuCount indices parmi 0..pCount-1
+      const shuffledIndices = Array.from({ length: pCount }, (_, i) => i)
+        .sort(() => Math.random() - 0.5);
+      const pickedZozuIndices = new Set(shuffledIndices.slice(0, targetZozuCount));
+
+      // Attribution d'une mission différente à chaque Zozu
+      const shuffledMissions = [...ZOZU_MISSIONS].sort(() => Math.random() - 0.5);
+      let missionIdx = 0;
+
+      // Fixation définitive des couleurs de 1 à N pour toute la partie !
+      gameState.players = localPlayers.map((name, idx) => {
+        const isZ = pickedZozuIndices.has(idx);
+        const mission = isZ ? (shuffledMissions[missionIdx++] || ZOZU_MISSIONS[0]) : null;
+        return {
+          id: 'p_' + idx,
+          name: name.trim() || `Joueur ${idx + 1}`,
+          colorIndex: idx + 1, // Fixé pour toujours
+          isZozu: isZ,
+          mission: mission,
+          eliminated: false
+        };
+      });
+
+      gameState.round = 1;
+      gameState.currentCardIndex = 0;
+
+      pickNewTopicAndMission();
+      showPassPhoneScreen();
+    }
+
+    function pickNewTopicAndMission() {
+      const topic = DEBATE_TOPICS[Math.floor(Math.random() * DEBATE_TOPICS.length)];
+      gameState.currentTopic = topic;
+
+      // À chaque nouvelle manche, chaque Zozu vivant reçoit une NOUVELLE mission secrète, sans doublon !
+      const aliveZozus = gameState.players.filter(p => p.isZozu && !p.eliminated);
+      const shuffledMissions = [...ZOZU_MISSIONS].sort(() => Math.random() - 0.5);
+      aliveZozus.forEach((zozu, i) => {
+        zozu.mission = shuffledMissions[i] || ZOZU_MISSIONS[0];
+      });
+      if (aliveZozus.length > 0) {
+        gameState.zozuMission = aliveZozus[0].mission;
+      }
+    }
+
+    function showPassPhoneScreen() {
+      const activePlayers = gameState.players.filter(p => !p.eliminated);
+      if (gameState.currentCardIndex >= activePlayers.length) {
+        startDebateScreen();
+        return;
+      }
+
+      const player = activePlayers[gameState.currentCardIndex];
+      const playerColor = getPlayerColor(player.colorIndex);
+
+      // Réinitialiser la carte 3D
+      const flipInner = document.getElementById('pass-flip-inner');
+      if (flipInner) flipInner.classList.remove('is-flipped');
+
+      // Wording oral chaleureux & pion du joueur
+      document.getElementById('current-player-name-display').innerText = player.name;
+      document.getElementById('player-pawn-preview-back').innerHTML = createPawnSvg(playerColor.hex, 44);
+
+      // Thème du dos de carte selon la couleur du joueur
+      const cardBackTheme = document.getElementById('card-back-theme');
+      if (cardBackTheme) {
+        cardBackTheme.style.backgroundColor = playerColor.hex;
+      }
+
+      // Bouton avec couleur du joueur
+      const btnReveal = document.getElementById('btn-reveal-action');
+      if (btnReveal) {
+        btnReveal.innerText = `À toi de jouer, ${player.name} ! Voir ma carte`;
+        btnReveal.style.backgroundColor = playerColor.hex;
+        btnReveal.style.color = playerColor.textColor;
+      }
+
+      showScreen('screen-pass-phone');
+    }
+
+    function revealCurrentCard() {
+      Sound.init();
+      const activePlayers = gameState.players.filter(p => !p.eliminated);
+      const player = activePlayers[gameState.currentCardIndex];
+      const playerColor = getPlayerColor(player.colorIndex);
+
+      const cardBox = document.getElementById('role-card-box');
+      const badge = document.getElementById('role-badge-el');
+      const title = document.getElementById('role-title-el');
+      const desc = document.getElementById('role-desc-el');
+      const missionBox = document.getElementById('mission-container-el');
+      const missionText = document.getElementById('mission-text-el');
+      const playerBadge = document.getElementById('revealed-player-badge');
+
+      // En-tête avec pion et nom du joueur
+      playerBadge.innerHTML = `
+        ${createPawnSvg(playerColor.hex, 36)}
+        <span style="font-family: var(--font-title); font-size: 1.2rem; font-weight: 700; color: ${playerColor.textColor}; background: ${playerColor.hex}; border: var(--border-solid); padding: 3px 12px; border-radius: var(--radius-pill); box-shadow: var(--shadow-hard-sm);">
+          ${escapeHtml(player.name)}
+        </span>
+      `;
+
+      cardBox.style.borderColor = "#2A1E17";
+      cardBox.style.backgroundColor = "#FFFFFF";
+
+      const totalZozus = gameState.players.filter(p => p.isZozu).length;
+
+      if (player.isZozu) {
+        badge.style.background = "var(--accent-tomato)";
+        badge.style.color = "#FFFFFF";
+        badge.innerText = (totalZozus > 1 ? "CHUT ! TU ES UN ZOZU" : "CHUT ! TU ES LE ZOZU");
+        title.innerText = "L'INFILTRÉ DU TOUR";
+        desc.innerText = "Débats avec conviction mais place ta mission secrète en douce sans éveiller le moindre soupçon !";
+        missionBox.style.display = 'block';
+        missionText.innerText = (player.mission ? player.mission.text : (gameState.zozuMission ? gameState.zozuMission.text : ""));
+      } else {
+        badge.style.background = "var(--accent-mint)";
+        badge.style.color = "var(--text-brown)";
+        badge.innerText = "TU ES DÉBATTEUR";
+        title.innerText = "DÉBATTEUR INNOCENT";
+        desc.innerText = (totalZozus > 1 
+          ? "Tu n'as aucune mission bizarre. Débats sincèrement et ouvre grand tes oreilles pour démasquer les Zozus !"
+          : "Tu n'as aucune mission bizarre. Débats sincèrement et ouvre grand tes oreilles pour coincer le Zozu !");
+        missionBox.style.display = 'none';
+      }
+
+      showScreen('screen-card-revealed');
+    }
+
+    function hideCardAndNextPlayer() {
+      gameState.currentCardIndex++;
+      showPassPhoneScreen();
+    }
+
+    // =========================================================================
+    // --- DÉBAT & CHRONO (AVEC COULEUR DYNAMIQUE FREDOKA) ---
+    // =========================================================================
+    function startDebateScreen() {
+      Sound.playGong();
+      document.getElementById('debate-round-tag').innerText = `Manche ${gameState.round}`;
+      document.getElementById('topic-cat-display').innerText = gameState.currentTopic.cat;
+      document.getElementById('topic-title-display').innerText = gameState.currentTopic.title;
+
+      // Affichage des pions des joueurs actifs autour de la table
+      const pawnsContainer = document.getElementById('debate-players-pawns');
+      if (pawnsContainer) {
+        pawnsContainer.innerHTML = '';
+        const activePlayers = gameState.players.filter(p => !p.eliminated);
+        activePlayers.forEach(p => {
+          const pColor = getPlayerColor(p.colorIndex);
+          const wrap = document.createElement('div');
+          wrap.style.cssText = 'display: flex; flex-direction: column; align-items: center; gap: 3px;';
+          wrap.innerHTML = `
+            <div class="player-pawn" style="background: ${pColor.hex}; width: 34px; height: 34px; border: 3px solid #2A1E17; border-radius: 999px; display: flex; align-items: center; justify-content: center; box-shadow: 1px 1px 0 #2A1E17;">
+              ${createPawnSvg(pColor.hex, 28)}
+            </div>
+            <span style="font-size: 0.70rem; font-weight: 800; color: var(--text-brown); max-width: 52px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">${escapeHtml(p.name)}</span>
+          `;
+          pawnsContainer.appendChild(wrap);
+        });
+      }
+
+      gameState.timerSeconds = 120; // 2 minutes
+      updateTimerDisplay();
+      startTimer();
+
+      showScreen('screen-debate');
+    }
+
+    function updateTimerDisplay() {
+      const min = Math.floor(gameState.timerSeconds / 60);
+      const sec = gameState.timerSeconds % 60;
+      const timerEl = document.getElementById('timer-display');
+      timerEl.innerText = `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+
+      // Changement de couleur dynamique : Menthe (>60s) -> Moutarde (60s-20s) -> Tomate (<=20s)
+      timerEl.classList.remove('timer-mint', 'timer-mustard', 'timer-tomato');
+      if (gameState.timerSeconds > 60) {
+        timerEl.classList.add('timer-mint');
+      } else if (gameState.timerSeconds > 20) {
+        timerEl.classList.add('timer-mustard');
+      } else {
+        timerEl.classList.add('timer-tomato');
+      }
+    }
+
+    function startTimer() {
+      clearInterval(gameState.timerInterval);
+      gameState.isTimerRunning = true;
+      document.getElementById('btn-timer-toggle').innerText = 'Pause';
+
+      gameState.timerInterval = setInterval(() => {
+        if (gameState.timerSeconds > 0) {
+          gameState.timerSeconds--;
+          updateTimerDisplay();
+          if (gameState.timerSeconds <= 10 && gameState.timerSeconds > 0) {
+            Sound.playTick();
+          }
+          if (gameState.timerSeconds === 0) {
+            clearInterval(gameState.timerInterval);
+            gameState.isTimerRunning = false;
+            Sound.playGong();
+            finishDebateAndGoToVote();
+          }
+        }
+      }, 1000);
+    }
+
+    function toggleTimer() {
+      if (gameState.isTimerRunning) {
+        clearInterval(gameState.timerInterval);
+        gameState.isTimerRunning = false;
+        document.getElementById('btn-timer-toggle').innerText = 'Reprendre';
+      } else {
+        startTimer();
+      }
+    }
+
+    function finishDebateAndGoToVote() {
+      clearInterval(gameState.timerInterval);
+      gameState.isTimerRunning = false;
+      renderVotingList();
+      showScreen('screen-vote');
+    }
+
+    // =========================================================================
+    // --- VOTE : GROS BOUTONS AUX COULEURS DES JOUEURS ---
+    // =========================================================================
+    function renderVotingList() {
+      const container = document.getElementById('voting-players-list');
+      container.innerHTML = '';
+      gameState.selectedVoteId = null;
+      document.getElementById('btn-confirm-vote').disabled = true;
+
+      const aliveZozus = gameState.players.filter(p => p.isZozu && !p.eliminated);
+      const titleHeading = document.getElementById('vote-title-heading');
+      const subText = document.getElementById('vote-subtitle-text');
+
+      if (titleHeading) {
+        titleHeading.innerText = (aliveZozus.length > 1 ? "Qui sont les Zozus ?" : "Qui est le Zozu ?");
+      }
+      if (subText) {
+        if (aliveZozus.length > 1) {
+          subText.innerText = `Désignez ensemble un suspect à éliminer (${aliveZozus.length} Zozus encore cachés autour de la table) !`;
+        } else {
+          subText.innerText = "Désignez ensemble un suspect à éliminer autour de la table !";
+        }
+      }
+
+      const activePlayers = gameState.players.filter(p => !p.eliminated);
+      activePlayers.forEach((p, idx) => {
+        const pColor = getPlayerColor(p.colorIndex);
+        const item = document.createElement('div');
+        item.className = 'vote-item';
+        item.id = `vote-item-${p.id}`;
+        item.onclick = () => selectSuspectToVote(p.id);
+        item.innerHTML = `
+          <div class="vote-player-info">
+            <div class="player-pawn" style="background: ${pColor.hex}; width: 38px; height: 38px; border: 3px solid #2A1E17; border-radius: 999px; display: flex; align-items: center; justify-content: center; box-shadow: 1px 1px 0 #2A1E17; flex-shrink: 0;">
+              ${createPawnSvg(pColor.hex, 32)}
+            </div>
+            <div>
+              <div class="vote-name">${escapeHtml(p.name)}</div>
+              <div class="vote-player-sub" style="font-size: 0.72rem; font-weight: 700; color: var(--text-brown); opacity: 0.70; margin-top: 1px;">
+                Joueur ${p.colorIndex} • ${pColor.name}
+              </div>
+            </div>
+          </div>
+          <div class="vote-check">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function selectSuspectToVote(playerId) {
+      gameState.selectedVoteId = playerId;
+      document.querySelectorAll('.vote-item').forEach(el => el.classList.remove('selected'));
+      const chosen = document.getElementById(`vote-item-${playerId}`);
+      if (chosen) chosen.classList.add('selected');
+      document.getElementById('btn-confirm-vote').disabled = false;
+    }
+
+    // =========================================================================
+    // --- RÉSULTAT : CONFETTIS ET MASCOTTE PERSONNALISÉE ---
+    // =========================================================================
+    function renderZozusListDisplay(zozus, showSingle = false) {
+      const box = document.getElementById('mission-reveal-box');
+      const singleMissionText = document.getElementById('revealed-mission-text');
+      const listContainer = document.getElementById('revealed-zozus-list');
+      
+      box.style.display = 'block';
+      if (showSingle && zozus.length === 1) {
+        singleMissionText.style.display = 'block';
+        singleMissionText.innerText = (zozus[0].mission ? zozus[0].mission.text : (gameState.zozuMission ? gameState.zozuMission.text : ''));
+        listContainer.style.display = 'none';
+        listContainer.innerHTML = '';
+      } else {
+        singleMissionText.style.display = 'none';
+        listContainer.style.display = 'flex';
+        listContainer.style.flexDirection = 'column';
+        listContainer.style.gap = '8px';
+        listContainer.innerHTML = '';
+
+        zozus.forEach(z => {
+          const zColor = getPlayerColor(z.colorIndex);
+          const row = document.createElement('div');
+          row.className = 'zozu-reveal-item';
+          row.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+              ${createPawnSvg(zColor.hex, 28)}
+              <span style="font-family: var(--font-title); font-size: 0.95rem; font-weight: 800; color: var(--text-brown);">
+                ${escapeHtml(z.name)}
+              </span>
+              <span style="font-size: 0.75rem; font-weight: 800; background: var(--accent-tomato); color: #FFF; padding: 1px 7px; border-radius: var(--radius-pill); border: 1.5px solid #2A1E17;">
+                ZOZU
+              </span>
+            </div>
+            <div style="font-size: 0.88rem; font-weight: 700; color: var(--text-brown); line-height: 1.35; padding-left: 36px;">
+              <strong>Mission :</strong> ${z.mission ? escapeHtml(z.mission.text) : 'Infiltration'}
+            </div>
+          `;
+          listContainer.appendChild(row);
+        });
+      }
+    }
+
+    function confirmEliminationVote() {
+      if (!gameState.selectedVoteId) return;
+
+      const suspect = gameState.players.find(p => p.id === gameState.selectedVoteId);
+      if (!suspect) return;
+
+      suspect.eliminated = true;
+
+      const bannerBox = document.getElementById('result-banner-box');
+      const titleEl = document.getElementById('result-title-display');
+      const descEl = document.getElementById('result-desc-display');
+      const iconEl = document.getElementById('result-icon-display');
+      const missionReveal = document.getElementById('mission-reveal-box');
+      const actionsEl = document.getElementById('result-actions');
+
+      const aliveZozus = gameState.players.filter(p => p.isZozu && !p.eliminated);
+      const aliveInnocents = gameState.players.filter(p => !p.isZozu && !p.eliminated);
+      const allZozus = gameState.players.filter(p => p.isZozu);
+
+      if (suspect.isZozu) {
+        if (aliveZozus.length === 0) {
+          // VICTOIRE TOTALE DES DÉBATTEURS
+          Sound.playWin();
+          triggerConfetti();
+
+          bannerBox.className = 'result-banner success';
+          iconEl.innerHTML = getResultMascotSvg(true); // Mascotte Zozu démasquée
+          titleEl.innerText = (allZozus.length > 1 ? 'Tous les Zozus ont été démasqués !' : 'Félicitations, le Zozu a été démasqué !');
+          descEl.innerHTML = `<strong>${escapeHtml(suspect.name)}</strong> était le dernier Zozu infiltré.<br>Les Débatteurs remportent la victoire !`;
+
+          renderZozusListDisplay(allZozus, allZozus.length === 1);
+
+          actionsEl.innerHTML = `
+            <button class="btn btn-tomato btn-tilt-neg" onclick="showScreen('screen-setup-local')">
+              <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 14A12 12 0 1 0 14 2v4"/><polyline points="8 6 14 6 14 0"/></svg>
+              Rejouer une nouvelle partie
+            </button>
+          `;
+        } else {
+          // UN ZOZU EN MOINS, MAIS IL EN RESTE ! PARTIE CONTINUE
+          Sound.playWin();
+
+          bannerBox.className = 'result-banner success';
+          iconEl.innerHTML = getResultMascotSvg(true); // Mascotte contente
+          titleEl.innerText = 'Un Zozu éliminé !';
+          descEl.innerHTML = `Bien joué ! <strong>${escapeHtml(suspect.name)}</strong> était bien un Zozu.<br><br><strong>Attention :</strong> il reste encore <strong>${aliveZozus.length} Zozu${aliveZozus.length > 1 ? 's' : ''}</strong> infiltré${aliveZozus.length > 1 ? 's' : ''} autour de la table !`;
+
+          renderZozusListDisplay([suspect], true);
+
+          actionsEl.innerHTML = `
+            <button class="btn btn-mint btn-tilt-pos" onclick="launchNextRound()">
+              <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="10 19 16 14 10 9"/><line x1="4" y1="14" x2="16" y2="14"/><circle cx="21" cy="14" r="3"/></svg>
+              Lancer la Manche ${gameState.round + 1} (${aliveZozus.length + aliveInnocents.length} joueurs restants)
+            </button>
+          `;
+        }
+      } else {
+        // INNOCENT ÉLIMINÉ
+        Sound.playFail();
+
+        if (aliveZozus.length >= aliveInnocents.length) {
+          // VICTOIRE DES ZOZUS !
+          triggerConfetti();
+
+          bannerBox.className = 'result-banner fail tilt-right';
+          iconEl.innerHTML = getResultMascotSvg(false); // Mascotte goguenarde
+          titleEl.innerText = (allZozus.length > 1 ? 'Victoire des Zozus !' : 'Victoire du Zozu !');
+          descEl.innerHTML = `<strong>${escapeHtml(suspect.name)}</strong> était un Débatteur innocent.<br><br>Les Zozus sont désormais aussi ou plus nombreux que les innocents (${aliveZozus.length} Zozu${aliveZozus.length > 1 ? 's' : ''} face à ${aliveInnocents.length} innocent${aliveInnocents.length > 1 ? 's' : ''}) !`;
+
+          renderZozusListDisplay(allZozus, allZozus.length === 1);
+
+          actionsEl.innerHTML = `
+            <button class="btn btn-mustard btn-tilt-pos" onclick="showScreen('screen-setup-local')">
+              <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 14A12 12 0 1 0 14 2v4"/><polyline points="8 6 14 6 14 0"/></svg>
+              Rejouer une nouvelle partie
+            </button>
+          `;
+        } else {
+          // LA PARTIE CONTINUE
+          bannerBox.className = 'result-banner fail tilt-right';
+          iconEl.innerHTML = getResultMascotSvg(false);
+          titleEl.innerText = 'Erreur, ce joueur n\'était pas un Zozu !';
+          descEl.innerHTML = `<strong>${escapeHtml(suspect.name)}</strong> était innocent et quitte le débat.<br><br><strong>${aliveZozus.length > 1 ? 'Les ' + aliveZozus.length + ' Zozus sont toujours parmi vous !' : 'Le Zozu est toujours parmi vous !'}</strong> Le cercle se resserre...`;
+
+          missionReveal.style.display = 'none';
+
+          actionsEl.innerHTML = `
+            <button class="btn btn-mint btn-tilt-pos" onclick="launchNextRound()">
+              <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="10 19 16 14 10 9"/><line x1="4" y1="14" x2="16" y2="14"/><circle cx="21" cy="14" r="3"/></svg>
+              Lancer la Manche ${gameState.round + 1} (${aliveZozus.length + aliveInnocents.length} joueurs restants)
+            </button>
+          `;
+        }
+      }
+
+      showScreen('screen-result');
+    }
+
+    function launchNextRound() {
+      gameState.round++;
+      gameState.currentCardIndex = 0;
+      pickNewTopicAndMission();
+      showPassPhoneScreen();
+    }
+
+    // CONFETTIS LÉGERS VECTORIELS AUX COULEURS DES JOUEURS
+    function triggerConfetti() {
+      const holder = document.getElementById('confetti-holder');
+      holder.innerHTML = '';
+      const colors = PLAYER_COLORS.map(c => c.hex);
+
+      for (let i = 0; i < 36; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = Math.random() * 95 + '%';
+        piece.style.top = -10 + 'px';
+        piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDelay = Math.random() * 0.8 + 's';
+        piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+        holder.appendChild(piece);
+      }
+    }
+
+    // =========================================================================
+    // --- MULTIJOUEUR SALONS EN LIGNE (EXPÉRIENCE COMPLÈTE & ÉTANCHÉITÉ) ---
+    // =========================================================================
+    let isOnlineMode = false;
+    let currentRoomCode = null;
+    let myPlayerId = null;
+    let myToken = null;
+    let onlineRoomState = null;
+    let onlineSelectedVoteId = null;
+    let currentPollingInterval = null;
+    const SESSION_KEY = 'zozu_online_session';
+
+    function saveOnlineSession(code, pId, tok, hostFlag) {
+      try {
+        localStorage.setItem(SESSION_KEY, JSON.stringify({
+          roomCode: code,
+          playerId: pId,
+          token: tok,
+          isHost: hostFlag
+        }));
+      } catch (e) {}
+    }
+
+    function getOnlineSession() {
+      try {
+        const raw = localStorage.getItem(SESSION_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function clearOnlineSession() {
+      try {
+        localStorage.removeItem(SESSION_KEY);
+      } catch (e) {}
+    }
+
+    async function apiCreateRoom() {
+      const hostInput = document.getElementById('create-host-name-input');
+      const hostName = (hostInput ? hostInput.value.trim() : '') || 'Hôte';
+      try {
+        const res = await fetch('/api/create-room', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ hostName })
+        });
+        const data = await res.json();
+        if (data.success) {
+          isOnlineMode = true;
+          currentRoomCode = data.roomCode;
+          myPlayerId = data.playerId;
+          myToken = data.token;
+          isHost = true;
+          saveOnlineSession(currentRoomCode, myPlayerId, myToken, true);
+
+          document.getElementById('lobby-room-code').innerText = currentRoomCode;
+          const zControl = document.getElementById('lobby-zozu-control');
+          if (zControl) zControl.style.display = 'block';
+
+          showScreen('screen-lobby');
+          startOnlinePolling();
+        } else {
+          alert(data.error || "Impossible de créer le salon.");
+        }
+      } catch (e) {
+        alert("Erreur de connexion au serveur.");
+      }
+    }
+
+    async function apiJoinRoom() {
+      const code = document.getElementById('join-code-input').value.trim().toUpperCase();
+      const playerName = document.getElementById('join-name-input').value.trim();
+
+      if (code.length < 4) {
+        alert("Veuillez saisir un code à 4 lettres valide.");
+        return;
+      }
+      if (!playerName) {
+        alert("Veuillez renseigner ton prénom.");
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/join-room', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roomCode: code, playerName })
+        });
+        const data = await res.json();
+        if (data.success) {
+          isOnlineMode = true;
+          currentRoomCode = code;
+          myPlayerId = data.playerId;
+          myToken = data.token;
+          isHost = data.isHost || false;
+          saveOnlineSession(currentRoomCode, myPlayerId, myToken, isHost);
+
+          document.getElementById('lobby-room-code').innerText = currentRoomCode;
+          const zControl = document.getElementById('lobby-zozu-control');
+          if (zControl) zControl.style.display = isHost ? 'block' : 'none';
+
+          showScreen('screen-lobby');
+          startOnlinePolling();
+        } else {
+          alert(data.error || "Impossible de rejoindre ce salon.");
+        }
+      } catch (e) {
+        alert("Erreur de connexion au serveur.");
+      }
+    }
+
+    function copyRoomCode() {
+      if (!currentRoomCode) return;
+      navigator.clipboard.writeText(currentRoomCode).then(() => {
+        const txt = document.getElementById('btn-copy-code-text');
+        if (txt) {
+          const old = txt.innerText;
+          txt.innerText = 'Copié !';
+          setTimeout(() => { txt.innerText = old; }, 2000);
+        }
+      }).catch(() => {
+        alert("Code du salon : " + currentRoomCode);
+      });
+    }
+
+    function shareRoomLink() {
+      if (!currentRoomCode) return;
+      const shareUrl = window.location.origin + '/?room=' + currentRoomCode;
+      if (navigator.share) {
+        navigator.share({
+          title: 'Rejoins ma partie de ZOZU !',
+          text: 'Rejoins notre partie de ZOZU avec le code ' + currentRoomCode + ' !',
+          url: shareUrl
+        }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(shareUrl).then(() => {
+          const txt = document.getElementById('btn-share-link-text');
+          if (txt) {
+            const old = txt.innerText;
+            txt.innerText = 'Lien copié !';
+            setTimeout(() => { txt.innerText = old; }, 2000);
+          }
+        }).catch(() => {
+          prompt("Voici le lien d'invitation :", shareUrl);
+        });
+      }
+    }
+
+    async function leaveLobby() {
+      stopOnlinePolling();
+      if (currentRoomCode && myPlayerId && myToken) {
+        try {
+          await fetch('/api/leave-room', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ roomCode: currentRoomCode, playerId: myPlayerId, token: myToken })
+          });
+        } catch (e) {}
+      }
+      clearOnlineSession();
+      isOnlineMode = false;
+      currentRoomCode = null;
+      myPlayerId = null;
+      myToken = null;
+      onlineRoomState = null;
+      showScreen('screen-home');
+    }
+
+    async function startOnlineGame() {
+      if (!currentRoomCode || !isHost) return;
+      try {
+        const res = await fetch('/api/start-room', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            roomCode: currentRoomCode,
+            playerId: myPlayerId,
+            token: myToken,
+            zozuCount: lobbyZozuCount
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          pollOnlineState();
+        } else {
+          alert(data.error || "Erreur lors du lancement de la salle.");
+        }
+      } catch (e) {
+        alert("Erreur réseau lors du lancement.");
+      }
+    }
+
+    function startOnlinePolling() {
+      stopOnlinePolling();
+      pollOnlineState();
+      currentPollingInterval = setInterval(pollOnlineState, 1500);
+    }
+
+    function stopOnlinePolling() {
+      if (currentPollingInterval) {
+        clearInterval(currentPollingInterval);
+        currentPollingInterval = null;
+      }
+    }
+
+    async function pollOnlineState() {
+      if (!currentRoomCode || !isOnlineMode) return;
+      try {
+        const res = await fetch(`/api/room-state?code=${currentRoomCode}&playerId=${myPlayerId || ''}&token=${myToken || ''}`);
+        const banner = document.getElementById('connection-banner');
+        
+        if (!res.ok) {
+          if (res.status === 404) {
+            stopOnlinePolling();
+            clearOnlineSession();
+            isOnlineMode = false;
+            alert("Ce salon s'est terminé ou a expiré.");
+            showScreen('screen-home');
+            return;
+          }
+          if (banner) banner.style.display = 'flex';
+          return;
+        }
+
+        if (banner) banner.style.display = 'none';
+
+        const data = await res.json();
+        if (data.success && data.room) {
+          onlineRoomState = data.room;
+          isHost = (data.room.isHost === true);
+          saveOnlineSession(currentRoomCode, myPlayerId, myToken, isHost);
+          syncOnlineUI(data.room);
+        }
+      } catch (err) {
+        const banner = document.getElementById('connection-banner');
+        if (banner) banner.style.display = 'flex';
+      }
+    }
+
+    // =========================================================================
+    // --- MOTEUR DE SYNCHRONISATION UI EN LIGNE (LES 5 ÉTATS DE JEU) ---
+    // =========================================================================
+    function syncOnlineUI(room) {
+      if (!isOnlineMode) return;
+
+      // 1. ÉTAT : LOBBY
+      if (room.status === 'lobby') {
+        if (!document.getElementById('screen-lobby').classList.contains('active')) {
+          showScreen('screen-lobby');
+        }
+        document.getElementById('lobby-room-code').innerText = room.code;
+        document.getElementById('lobby-count-badge').innerText = `${room.players.length} / 12`;
+
+        const listContainer = document.getElementById('lobby-players-list');
+        listContainer.innerHTML = '';
+        room.players.forEach((p, idx) => {
+          const pColor = getPlayerColor(p.colorIndex || (idx + 1));
+          const item = document.createElement('div');
+          item.className = 'player-row';
+          item.innerHTML = `
+            <div class="player-pawn" style="background: ${pColor.hex};">
+              ${createPawnSvg(pColor.hex, 26)}
+            </div>
+            <div class="player-input" style="font-family: var(--font-title); font-size: 1rem;">
+              ${escapeHtml(p.name)} ${p.isHost ? '<span style="font-size:0.75rem; background:var(--accent-mustard); border:1.5px solid #2A1E17; padding:2px 8px; border-radius:999px; margin-left:6px;">HÔTE</span>' : ''}
+              ${p.id === myPlayerId ? '<span style="font-size:0.72rem; background:var(--accent-mint); border:1.5px solid #2A1E17; padding:2px 6px; border-radius:999px; margin-left:4px;">MOI</span>' : ''}
+            </div>
+          `;
+          listContainer.appendChild(item);
+        });
+
+        // Contrôle Zozu hôte
+        const zControl = document.getElementById('lobby-zozu-control');
+        if (zControl) {
+          zControl.style.display = isHost ? 'block' : 'none';
+          if (isHost) updateLobbyZozuBounds(room.players.length);
+        }
+
+        const startBtn = document.getElementById('btn-start-online-game');
+        if (startBtn) {
+          startBtn.disabled = (!isHost || room.players.length < 3);
+          if (!isHost) {
+            startBtn.innerText = "En attente de l'hôte...";
+          } else {
+            startBtn.innerHTML = `
+              <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 4 24 14 6 24 6 4"/></svg>
+              Lancer la partie (${room.players.length >= 3 ? room.players.length + ' joueurs' : 'min 3 joueurs'})
+            `;
+          }
+        }
+        return;
+      }
+
+      // 2. ÉTAT : REVEALING (CARTE SECRÈTE EN LIGNE)
+      if (room.status === 'revealing') {
+        if (!document.getElementById('screen-card-revealed').classList.contains('active')) {
+          showScreen('screen-card-revealed');
+        }
+
+        const me = room.players.find(p => p.id === myPlayerId) || { name: 'Moi', colorIndex: 1 };
+        const myColor = getPlayerColor(me.colorIndex);
+
+        // Badge joueur
+        const playerBadge = document.getElementById('revealed-player-badge');
+        if (playerBadge) {
+          playerBadge.innerHTML = `
+            ${createPawnSvg(myColor.hex, 36)}
+            <span style="font-family: var(--font-title); font-size: 1.2rem; font-weight: 700; color: ${myColor.textColor}; background: ${myColor.hex}; border: var(--border-solid); padding: 3px 12px; border-radius: var(--radius-pill); box-shadow: var(--shadow-hard-sm);">
+              ${escapeHtml(me.name)}
+            </span>
+          `;
+        }
+
+        const badge = document.getElementById('role-badge-el');
+        const title = document.getElementById('role-title-el');
+        const desc = document.getElementById('role-desc-el');
+        const missionBox = document.getElementById('mission-container-el');
+        const missionText = document.getElementById('mission-text-el');
+
+        if (room.isZozu) {
+          badge.style.background = "var(--accent-tomato)";
+          badge.style.color = "#FFFFFF";
+          badge.innerText = (room.zozuCount > 1 ? "CHUT ! TU ES UN ZOZU" : "CHUT ! TU ES LE ZOZU");
+          title.innerText = "L'INFILTRÉ DU TOUR";
+          desc.innerText = "Débats avec conviction mais place ta mission secrète en douce sans éveiller le moindre soupçon !";
+          missionBox.style.display = 'block';
+          missionText.innerText = (room.mission ? room.mission.text : '');
+        } else {
+          badge.style.background = "var(--accent-mint)";
+          badge.style.color = "var(--text-brown)";
+          badge.innerText = "TU ES DÉBATTEUR";
+          title.innerText = "DÉBATTEUR INNOCENT";
+          desc.innerText = (room.zozuCount > 1 
+            ? "Tu n'as aucune mission bizarre. Débats sincèrement et ouvre grand tes oreilles pour démasquer les Zozus !"
+            : "Tu n'as aucune mission bizarre. Débats sincèrement et ouvre grand tes oreilles pour coincer le Zozu !");
+          missionBox.style.display = 'none';
+        }
+
+        const btnAction = document.getElementById('btn-card-action');
+        const btnText = document.getElementById('btn-card-action-text');
+        if (btnAction && btnText) {
+          if (room.hasConfirmedReveal) {
+            btnAction.disabled = true;
+            btnAction.style.background = "var(--card-bg-subtle)";
+            btnAction.style.color = "var(--text-muted)";
+            btnText.innerText = `En attente des autres joueurs (${room.revealedCount} / ${room.alivePlayersCount} prêts)...`;
+          } else {
+            btnAction.disabled = false;
+            btnAction.style.background = "var(--accent-tomato)";
+            btnAction.style.color = "#FFFFFF";
+            btnText.innerText = `J'ai compris ma mission ! (${room.remainingTimer}s)`;
+          }
+        }
+        return;
+      }
+
+      // 3. ÉTAT : DEBATING (DÉBAT AVEC CHRONO SERVEUR)
+      if (room.status === 'debating') {
+        if (!document.getElementById('screen-debate').classList.contains('active')) {
+          showScreen('screen-debate');
+        }
+
+        document.getElementById('debate-round-tag').innerText = `Manche ${room.round}`;
+        if (room.topic) {
+          document.getElementById('topic-cat-display').innerText = room.topic.cat;
+          document.getElementById('topic-title-display').innerText = room.topic.title;
+        }
+
+        // Affichage des pions vivants
+        const pawnsContainer = document.getElementById('debate-players-pawns');
+        if (pawnsContainer) {
+          pawnsContainer.innerHTML = '';
+          const activePlayers = room.players.filter(p => !p.eliminated);
+          activePlayers.forEach(p => {
+            const pColor = getPlayerColor(p.colorIndex);
+            const wrap = document.createElement('div');
+            wrap.style.cssText = 'display: flex; flex-direction: column; align-items: center; gap: 3px;';
+            wrap.innerHTML = `
+              <div class="player-pawn" style="background: ${pColor.hex}; width: 34px; height: 34px; border: 3px solid #2A1E17; border-radius: 999px; display: flex; align-items: center; justify-content: center; box-shadow: 1px 1px 0 #2A1E17;">
+                ${createPawnSvg(pColor.hex, 28)}
+              </div>
+              <span style="font-size: 0.70rem; font-weight: 800; color: var(--text-brown); max-width: 52px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">${escapeHtml(p.name)}</span>
+            `;
+            pawnsContainer.appendChild(wrap);
+          });
+        }
+
+        // Chrono serveur
+        const timerEl = document.getElementById('timer-display');
+        const min = Math.floor(room.remainingTimer / 60);
+        const sec = room.remainingTimer % 60;
+        timerEl.innerText = `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+        timerEl.classList.remove('timer-mint', 'timer-mustard', 'timer-tomato');
+        if (room.remainingTimer > 60) timerEl.classList.add('timer-mint');
+        else if (room.remainingTimer > 20) timerEl.classList.add('timer-mustard');
+        else timerEl.classList.add('timer-tomato');
+
+        // Boutons débat
+        const toggleBtn = document.getElementById('btn-timer-toggle');
+        if (toggleBtn) toggleBtn.style.display = 'none'; // Pas de pause en ligne
+
+        const debateActionBtn = document.getElementById('btn-debate-action');
+        const debateActionText = document.getElementById('btn-debate-action-text');
+        if (debateActionBtn && debateActionText) {
+          if (isHost) {
+            debateActionBtn.disabled = false;
+            debateActionBtn.style.background = "var(--accent-tomato)";
+            debateActionBtn.style.color = "#FFFFFF";
+            debateActionText.innerText = "Passer au vote maintenant";
+          } else {
+            debateActionBtn.disabled = true;
+            debateActionBtn.style.background = "var(--card-bg-subtle)";
+            debateActionBtn.style.color = "var(--text-muted)";
+            debateActionText.innerText = "Débat en cours... Discutez !";
+          }
+        }
+        return;
+      }
+
+      // 4. ÉTAT : VOTING (VOTE SECRET SUR SON TÉLÉPHONE)
+      if (room.status === 'voting') {
+        if (!document.getElementById('screen-vote').classList.contains('active')) {
+          showScreen('screen-vote');
+          onlineSelectedVoteId = null;
+        }
+
+        const titleHeading = document.getElementById('vote-title-heading');
+        const subText = document.getElementById('vote-subtitle-text');
+        if (titleHeading) {
+          titleHeading.innerText = (room.zozuCount > 1 ? "Qui sont les Zozus ?" : "Qui est le Zozu ?");
+        }
+        if (subText) {
+          subText.innerText = `Vote secret (${room.remainingTimer}s) • ${room.votesCount} / ${room.alivePlayersCount} votes enregistrés`;
+        }
+
+        const isEliminated = room.eliminatedIds.includes(myPlayerId);
+        const spectatorBox = document.getElementById('spectator-vote-box');
+        const listContainer = document.getElementById('voting-players-list');
+        const confirmBtn = document.getElementById('btn-confirm-vote');
+        const confirmBtnText = document.getElementById('btn-confirm-vote-text');
+
+        if (isEliminated) {
+          if (spectatorBox) spectatorBox.style.display = 'block';
+          if (listContainer) listContainer.style.display = 'none';
+          if (confirmBtn) {
+            confirmBtn.disabled = true;
+            confirmBtn.style.background = "var(--card-bg-subtle)";
+            confirmBtn.style.color = "var(--text-muted)";
+            if (confirmBtnText) confirmBtnText.innerText = `Tu observes (${room.votesCount}/${room.alivePlayersCount} votes)`;
+          }
+        } else {
+          if (spectatorBox) spectatorBox.style.display = 'none';
+          if (listContainer) listContainer.style.display = 'block';
+
+          // Rendu des autres joueurs vivants (on ne peut pas voter pour soi-même)
+          listContainer.innerHTML = '';
+          const candidatePlayers = room.players.filter(p => !p.eliminated && p.id !== myPlayerId);
+          candidatePlayers.forEach(p => {
+            const pColor = getPlayerColor(p.colorIndex);
+            const item = document.createElement('div');
+            item.className = 'vote-item' + (onlineSelectedVoteId === p.id ? ' selected' : '');
+            item.onclick = () => {
+              if (room.hasVoted) return;
+              onlineSelectedVoteId = p.id;
+              syncOnlineUI(room);
+            };
+            item.innerHTML = `
+              <div class="vote-player-info">
+                <div class="player-pawn" style="background: ${pColor.hex}; width: 38px; height: 38px; border: 3px solid #2A1E17; border-radius: 999px; display: flex; align-items: center; justify-content: center; box-shadow: 1px 1px 0 #2A1E17; flex-shrink: 0;">
+                  ${createPawnSvg(pColor.hex, 32)}
+                </div>
+                <div>
+                  <div class="vote-name">${escapeHtml(p.name)}</div>
+                  <div class="vote-player-sub" style="font-size: 0.72rem; font-weight: 700; color: var(--text-brown); opacity: 0.70; margin-top: 1px;">
+                    Joueur ${p.colorIndex} • ${pColor.name}
+                  </div>
+                </div>
+              </div>
+              <div class="vote-check">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+            `;
+            listContainer.appendChild(item);
+          });
+
+          if (confirmBtn && confirmBtnText) {
+            if (room.hasVoted) {
+              confirmBtn.disabled = true;
+              confirmBtn.style.background = "var(--accent-mint)";
+              confirmBtn.style.color = "var(--text-brown)";
+              confirmBtnText.innerText = `Vote validé ! En attente (${room.votesCount} / ${room.alivePlayersCount})...`;
+            } else {
+              confirmBtn.disabled = !onlineSelectedVoteId;
+              confirmBtn.style.background = onlineSelectedVoteId ? "var(--accent-tomato)" : "var(--card-bg-subtle)";
+              confirmBtn.style.color = onlineSelectedVoteId ? "#FFFFFF" : "var(--text-muted)";
+              confirmBtnText.innerText = "Éliminer ce suspect !";
+            }
+          }
+        }
+        return;
+      }
+
+      // 5. ÉTAT : RESULT ou ENDED
+      if (room.status === 'result' || room.status === 'ended') {
+        if (!document.getElementById('screen-result').classList.contains('active')) {
+          showScreen('screen-result');
+        }
+
+        const bannerBox = document.getElementById('result-banner-box');
+        const titleEl = document.getElementById('result-title-display');
+        const descEl = document.getElementById('result-desc-display');
+        const iconEl = document.getElementById('result-icon-display');
+        const missionReveal = document.getElementById('mission-reveal-box');
+        const actionsEl = document.getElementById('result-actions');
+
+        const res = room.lastResult;
+        if (!res) return;
+
+        if (res.wasZozu) {
+          if (res.outcome === 'debateurs_win') {
+            bannerBox.className = 'result-banner success';
+            iconEl.innerHTML = getResultMascotSvg(true);
+            titleEl.innerText = (room.zozuCount > 1 ? 'Tous les Zozus ont été démasqués !' : 'Le Zozu a été démasqué !');
+            descEl.innerHTML = `<strong>${escapeHtml(res.eliminatedName)}</strong> était le dernier Zozu.<br>Les Débatteurs remportent la victoire !`;
+            renderZozusListDisplay(room.allZozus || [res], (room.allZozus && room.allZozus.length === 1));
+
+            actionsEl.innerHTML = isHost ? `
+              <button class="btn btn-tomato btn-tilt-neg" onclick="apiRestartGame()">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 14A12 12 0 1 0 14 2v4"/><polyline points="8 6 14 6 14 0"/></svg>
+                Rejouer une nouvelle partie
+              </button>
+            ` : `
+              <div class="card-box text-center" style="padding: 12px; font-family: var(--font-title); font-weight: 700; color: var(--text-brown);">
+                Partie terminée ! En attente de l'hôte pour relancer...
+              </div>
+            `;
+          } else {
+            // Un Zozu éliminé mais il en reste
+            bannerBox.className = 'result-banner success';
+            iconEl.innerHTML = getResultMascotSvg(true);
+            titleEl.innerText = 'Un Zozu éliminé !';
+            descEl.innerHTML = `Bien joué ! <strong>${escapeHtml(res.eliminatedName)}</strong> était bien un Zozu.<br><br><strong>Attention :</strong> il reste encore <strong>${res.aliveZozusCount} Zozu${res.aliveZozusCount > 1 ? 's' : ''}</strong> infiltré${res.aliveZozusCount > 1 ? 's' : ''} !`;
+            renderZozusListDisplay([res], true);
+
+            actionsEl.innerHTML = isHost ? `
+              <button class="btn btn-mint btn-tilt-pos" onclick="apiNextRound()">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="10 19 16 14 10 9"/><line x1="4" y1="14" x2="16" y2="14"/><circle cx="21" cy="14" r="3"/></svg>
+                Lancer la Manche ${room.round + 1} (${res.aliveZozusCount + res.aliveInnocentsCount} joueurs restants)
+              </button>
+            ` : `
+              <div class="card-box text-center" style="padding: 12px; font-family: var(--font-title); font-weight: 700; color: var(--text-brown);">
+                En attente de l'hôte pour lancer la Manche ${room.round + 1}...
+              </div>
+            `;
+          }
+        } else {
+          // Innocent éliminé
+          if (res.outcome === 'zozus_win') {
+            bannerBox.className = 'result-banner fail tilt-right';
+            iconEl.innerHTML = getResultMascotSvg(false);
+            titleEl.innerText = (room.zozuCount > 1 ? 'Victoire des Zozus !' : 'Victoire du Zozu !');
+            descEl.innerHTML = `<strong>${escapeHtml(res.eliminatedName)}</strong> était un Débatteur innocent.<br><br>Les Zozus sont désormais aussi ou plus nombreux que les innocents !`;
+            renderZozusListDisplay(room.allZozus || [res], (room.allZozus && room.allZozus.length === 1));
+
+            actionsEl.innerHTML = isHost ? `
+              <button class="btn btn-mustard btn-tilt-pos" onclick="apiRestartGame()">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 14A12 12 0 1 0 14 2v4"/><polyline points="8 6 14 6 14 0"/></svg>
+                Rejouer une nouvelle partie
+              </button>
+            ` : `
+              <div class="card-box text-center" style="padding: 12px; font-family: var(--font-title); font-weight: 700; color: var(--text-brown);">
+                Partie terminée ! En attente de l'hôte pour relancer...
+              </div>
+            `;
+          } else {
+            // Erreur, innocent éliminé mais partie continue
+            bannerBox.className = 'result-banner fail tilt-right';
+            iconEl.innerHTML = getResultMascotSvg(false);
+            titleEl.innerText = 'Erreur, ce joueur n\'était pas un Zozu !';
+            descEl.innerHTML = `<strong>${escapeHtml(res.eliminatedName)}</strong> était innocent et quitte le débat.<br><br><strong>Le Zozu est toujours parmi vous !</strong> Le cercle se resserre...`;
+            missionReveal.style.display = 'none';
+
+            actionsEl.innerHTML = isHost ? `
+              <button class="btn btn-mint btn-tilt-pos" onclick="apiNextRound()">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="10 19 16 14 10 9"/><line x1="4" y1="14" x2="16" y2="14"/><circle cx="21" cy="14" r="3"/></svg>
+                Lancer la Manche ${room.round + 1} (${res.aliveZozusCount + res.aliveInnocentsCount} joueurs restants)
+              </button>
+            ` : `
+              <div class="card-box text-center" style="padding: 12px; font-family: var(--font-title); font-weight: 700; color: var(--text-brown);">
+                En attente de l'hôte pour lancer la Manche ${room.round + 1}...
+              </div>
+            `;
+          }
+        }
+      }
+    }
+
+    // HANDLERS POLYVALENTS LOCAL / EN LIGNE
+    function handleCardAction() {
+      if (!isOnlineMode) {
+        hideCardAndNextPlayer();
+      } else {
+        apiConfirmReveal();
+      }
+    }
+
+    async function apiConfirmReveal() {
+      if (!currentRoomCode || !myPlayerId || !myToken) return;
+      try {
+        await fetch('/api/confirm-reveal', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roomCode: currentRoomCode, playerId: myPlayerId, token: myToken })
+        });
+        pollOnlineState();
+      } catch (e) {}
+    }
+
+    function handleDebateAction() {
+      if (!isOnlineMode) {
+        finishDebateAndGoToVote();
+      } else {
+        apiSkipToVote();
+      }
+    }
+
+    async function apiSkipToVote() {
+      if (!currentRoomCode || !isHost || !myPlayerId || !myToken) return;
+      try {
+        await fetch('/api/skip-to-vote', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roomCode: currentRoomCode, playerId: myPlayerId, token: myToken })
+        });
+        pollOnlineState();
+      } catch (e) {}
+    }
+
+    function handleConfirmVote() {
+      if (!isOnlineMode) {
+        confirmEliminationVote();
+      } else {
+        apiCastVote();
+      }
+    }
+
+    async function apiCastVote() {
+      if (!currentRoomCode || !myPlayerId || !myToken || !onlineSelectedVoteId) return;
+      try {
+        await fetch('/api/cast-vote', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            roomCode: currentRoomCode,
+            playerId: myPlayerId,
+            token: myToken,
+            targetPlayerId: onlineSelectedVoteId
+          })
+        });
+        pollOnlineState();
+      } catch (e) {}
+    }
+
+    async function apiNextRound() {
+      if (!currentRoomCode || !isHost || !myPlayerId || !myToken) return;
+      try {
+        await fetch('/api/next-round', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roomCode: currentRoomCode, playerId: myPlayerId, token: myToken })
+        });
+        pollOnlineState();
+      } catch (e) {}
+    }
+
+    async function apiRestartGame() {
+      if (!currentRoomCode || !isHost || !myPlayerId || !myToken) return;
+      try {
+        await fetch('/api/restart-game', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roomCode: currentRoomCode, playerId: myPlayerId, token: myToken })
+        });
+        pollOnlineState();
+      } catch (e) {}
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    // =========================================================================
+    // --- PWA SERVICE WORKER & PROMPT INSTALLATION ---
+    // =========================================================================
+    let deferredPrompt = null;
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => {
+            console.log('ZOZU SW v8 actif :', reg.scope);
+            reg.update();
+          })
+          .catch(err => console.warn('Erreur SW :', err));
+      });
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const directBtn = document.getElementById('btn-pwa-direct-install');
+      if (directBtn) {
+        directBtn.style.display = 'flex';
+      }
+    });
+
+    function triggerPwaInstall() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            closePwaModal();
+          }
+          deferredPrompt = null;
+        });
+      } else {
+        alert("Pour installer ZOZU sur votre appareil :\n• Sur iPhone / Safari : appuyez sur le bouton Partager puis 'Sur l'écran d'accueil'.\n• Sur Android / Chrome : appuyez sur le menu (3 points) puis 'Installer l'application'.\n• Sur PC / Edge : cliquez sur l'icône à droite dans la barre d'adresse.");
+      }
+    }
+  </script>
+</body>
+</html>

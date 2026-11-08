@@ -1,0 +1,22 @@
+{
+  "name": "zozu",
+  "version": "1.0.0",
+  "description": "ZOZU - Jeu de déduction sociale et de débat oral entre amis",
+  "type": "module",
+  "main": "server.mjs",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": [
+    "party-game",
+    "social-deduction",
+    "pwa",
+    "multiplayer",
+    "zozu"
+  ],
+  "author": "Antigravity",
+  "license": "MIT"
+}
