@@ -372,6 +372,58 @@
       color: var(--text-brown);
     }
 
+    /* BARRE CONTRÔLES AUDIO FIXÉE EN HAUT À DROITE */
+    .audio-controls-top {
+      position: fixed;
+      top: calc(10px + env(safe-area-inset-top, 0px));
+      right: calc(12px + env(safe-area-inset-right, 0px));
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      pointer-events: auto;
+    }
+
+    .audio-toggle-btn {
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      min-height: 44px;
+      border-radius: 999px;
+      background: #FFF3DC;
+      border: 3px solid #2A1E17;
+      box-shadow: 2.5px 2.5px 0 #2A1E17;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+      transition: transform 0.1s ease, background 0.15s ease, box-shadow 0.1s ease;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .audio-toggle-btn:hover {
+      transform: scale(1.05);
+      background: #FFFFFF;
+    }
+
+    .audio-toggle-btn:active {
+      transform: translate(1.5px, 1.5px);
+      box-shadow: 1px 1px 0 #2A1E17;
+    }
+
+    .audio-toggle-btn.muted {
+      background: #E6D9C2;
+      box-shadow: 1px 1px 0 #2A1E17;
+      opacity: 0.88;
+    }
+
+    .audio-toggle-btn svg {
+      pointer-events: none;
+    }
+
     .btn-mint {
       background: var(--accent-mint);
       color: var(--text-brown);
@@ -1191,6 +1243,16 @@
     <div style="position: absolute; right: calc(50% - 420px); top: 560px; width: 48px; height: 48px; border-radius: 50%; background: #FF9A2E; border: 3px solid #2A1E17; box-shadow: 3px 3px 0 #2A1E17;"></div>
   </div>
 
+  <!-- BARRE DE CONTRÔLES AUDIO FIXÉE (EFFETS & MUSIQUE) -->
+  <aside id="audio-controls-bar" class="audio-controls-top" role="toolbar" aria-label="Contrôles du son">
+    <button id="btn-audio-sfx" class="audio-toggle-btn" onclick="ZozuAudio.toggleSfx()" aria-label="Effets sonores activés (cliquer pour couper)" aria-pressed="true" title="Effets sonores (activés)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2A1E17" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+    </button>
+    <button id="btn-audio-music" class="audio-toggle-btn" onclick="ZozuAudio.toggleMusic()" aria-label="Musique activée (cliquer pour couper)" aria-pressed="true" title="Musique de fond (activée)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2A1E17" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.5" fill="#2A1E17"/><circle cx="17.5" cy="14.5" r="3.5" fill="#2A1E17"/><path d="M9 17.5V5l12-3v12.5"/></svg>
+    </button>
+  </aside>
+
   <div id="app-container">
 
     <!-- EN-TÊTE CHALEUREUX AVEC MASCOTTE ZOZU ÉTENDUE ET CHEVAUCHEMENT -->
@@ -1256,18 +1318,18 @@
         </p>
 
         <!-- BOUTON HÉROS (PLUS GRAND, TEXTE PLUS GROS, LÉGÈRE INCLINAISON) -->
-        <button class="btn btn-tomato btn-hero" onclick="showScreen('screen-setup-local')">
+        <button class="btn btn-tomato btn-hero" onclick="if(typeof ZozuAudio!=='undefined')ZozuAudio.playTock();showScreen('screen-setup-local')">
           <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="18" height="24" rx="3"/><line x1="14" y1="21" x2="14.01" y2="21"/></svg>
           Jouer sur ce téléphone
         </button>
 
         <!-- BOUTONS SECONDAIRES ASYMÉTRIQUES INCLINÉS EN ALTERNANCE -->
-        <button class="btn btn-mint btn-tilt-neg mb-10" onclick="showScreen('screen-create-room')">
+        <button class="btn btn-mint btn-tilt-neg mb-10" onclick="if(typeof ZozuAudio!=='undefined')ZozuAudio.playTock();showScreen('screen-create-room')">
           <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="9" r="5"/><path d="M3 24v-2a6 6 0 0 1 12 0v2"/><line x1="21" y1="9" x2="21" y2="17"/><line x1="17" y1="13" x2="25" y2="13"/></svg>
           Créer un salon avec code
         </button>
 
-        <button class="btn btn-mustard btn-tilt-pos mb-10" onclick="showScreen('screen-join-room')">
+        <button class="btn btn-mustard btn-tilt-pos mb-10" onclick="if(typeof ZozuAudio!=='undefined')ZozuAudio.playTock();showScreen('screen-join-room')">
           <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#2A1E17" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H5a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h6"/><polyline points="18 19 24 14 18 9"/><line x1="24" y1="14" x2="10" y2="14"/></svg>
           Rejoindre un salon d'amis
         </button>
@@ -1940,81 +2002,572 @@
     // =========================================================================
     // --- EFFETS SONORES WEB AUDIO ---
     // =========================================================================
-    const Sound = {
-      ctx: null,
-      init() {
-        if (!this.ctx) {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          if (AudioContext) this.ctx = new AudioContext();
-        }
-        if (this.ctx && this.ctx.state === 'suspended') {
-          this.ctx.resume();
-        }
-      },
-      playTick() {
-        this.init();
-        if (!this.ctx) return;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(800, this.ctx.currentTime);
-        gain.gain.setValueAtTime(0.09, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.05);
-      },
-      playGong() {
-        this.init();
-        if (!this.ctx) return;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(260, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(110, this.ctx.currentTime + 1.2);
-        gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 1.2);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start();
-        osc.stop(this.ctx.currentTime + 1.2);
-      },
-      playWin() {
-        this.init();
-        if (!this.ctx) return;
-        const now = this.ctx.currentTime;
-        [440, 554, 659, 880].forEach((freq, idx) => {
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(freq, now + idx * 0.1);
-          gain.gain.setValueAtTime(0.18, now + idx * 0.1);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.4);
-          osc.connect(gain);
-          gain.connect(this.ctx.destination);
-          osc.start(now + idx * 0.1);
-          osc.stop(now + idx * 0.1 + 0.4);
-        });
-      },
-      playFail() {
-        this.init();
-        if (!this.ctx) return;
-        const now = this.ctx.currentTime;
-        [300, 260, 210].forEach((freq, idx) => {
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(freq, now + idx * 0.15);
-          gain.gain.setValueAtTime(0.14, now + idx * 0.15);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.15 + 0.3);
-          osc.connect(gain);
-          gain.connect(this.ctx.destination);
-          osc.start(now + idx * 0.15);
-          osc.stop(now + idx * 0.15 + 0.3);
-        });
+    const ZozuAudio = {
+  ctx: null,
+  masterGain: null,
+  compressor: null,
+  sfxGain: null,
+  musicGain: null,
+  duckGain: null,
+
+  sfxEnabled: true,
+  musicEnabled: true,
+  hasUnlocked: false,
+  hasStartedMusic: false,
+  currentTrack: 'none', // 'menu' | 'debate' | 'none'
+  musicInterval: null,
+  nextNoteTime: 0,
+  stepIndex: 0,
+
+  localTimerFlags: { passed20: false, passed10: false },
+  onlineTimerFlags: { passed20: false, passed10: false },
+  onlineSyncMemo: {
+    initialized: false,
+    status: null,
+    playersCount: 0,
+    round: 0,
+    hasVoted: false,
+    hasConfirmedReveal: false,
+    isEliminated: false,
+    bannerVisible: false
+  },
+
+  loadPreferences() {
+    try {
+      const sfxPref = localStorage.getItem('zozu_sfx');
+      if (sfxPref !== null) this.sfxEnabled = (sfxPref === 'true');
+      const musPref = localStorage.getItem('zozu_music');
+      if (musPref !== null) this.musicEnabled = (musPref === 'true');
+    } catch (e) {}
+  },
+
+  savePreferences() {
+    try {
+      localStorage.setItem('zozu_sfx', String(this.sfxEnabled));
+      localStorage.setItem('zozu_music', String(this.musicEnabled));
+    } catch (e) {}
+  },
+
+  init() {
+    this.loadPreferences();
+    if (this.ctx) return;
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      this.ctx = new AudioCtx();
+
+      // Master Compressor / Limiter
+      this.compressor = this.ctx.createDynamicsCompressor();
+      this.compressor.threshold.setValueAtTime(-6, this.ctx.currentTime);
+      this.compressor.knee.setValueAtTime(10, this.ctx.currentTime);
+      this.compressor.ratio.setValueAtTime(12, this.ctx.currentTime);
+      this.compressor.attack.setValueAtTime(0.003, this.ctx.currentTime);
+      this.compressor.release.setValueAtTime(0.15, this.ctx.currentTime);
+      this.compressor.connect(this.ctx.destination);
+
+      // Master Gain
+      this.masterGain = this.ctx.createGain();
+      this.masterGain.gain.setValueAtTime(1.0, this.ctx.currentTime);
+      this.masterGain.connect(this.compressor);
+
+      // SFX Gain
+      this.sfxGain = this.ctx.createGain();
+      this.sfxGain.gain.setValueAtTime(this.sfxEnabled ? 1.0 : 0.0, this.ctx.currentTime);
+      this.sfxGain.connect(this.masterGain);
+
+      // Music Gain & Ducking Gain
+      this.musicGain = this.ctx.createGain();
+      this.musicGain.gain.setValueAtTime(this.musicEnabled ? 0.22 : 0.0, this.ctx.currentTime);
+
+      this.duckGain = this.ctx.createGain();
+      this.duckGain.gain.setValueAtTime(1.0, this.ctx.currentTime);
+
+      this.musicGain.connect(this.duckGain);
+      this.duckGain.connect(this.masterGain);
+    } catch (e) {
+      console.warn('AudioContext not supported or blocked:', e);
+    }
+  },
+
+  unlock() {
+    this.init();
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+    if (!this.hasUnlocked) {
+      this.hasUnlocked = true;
+      if (this.musicEnabled && !this.hasStartedMusic) {
+        const activeScreen = document.querySelector('.screen.active')?.id;
+        this.setMusicTrack(activeScreen === 'screen-debate' ? 'debate' : 'menu');
       }
-    };
+    }
+  },
+
+  suspend() {
+    if (this.ctx && this.ctx.state === 'running') {
+      this.ctx.suspend();
+    }
+  },
+
+  resume() {
+    if (this.ctx && this.ctx.state === 'suspended' && this.hasUnlocked) {
+      this.ctx.resume();
+    }
+  },
+
+  toggleSfx() {
+    this.unlock();
+    this.sfxEnabled = !this.sfxEnabled;
+    this.savePreferences();
+    if (this.sfxGain && this.ctx) {
+      this.sfxGain.gain.setValueAtTime(this.sfxEnabled ? 1.0 : 0.0, this.ctx.currentTime);
+    }
+    this.updateUI();
+    if (this.sfxEnabled) this.playTock();
+  },
+
+  toggleMusic() {
+    this.unlock();
+    this.musicEnabled = !this.musicEnabled;
+    this.savePreferences();
+    if (this.musicGain && this.ctx) {
+      const t = this.ctx.currentTime;
+      this.musicGain.gain.cancelScheduledValues(t);
+      this.musicGain.gain.linearRampToValueAtTime(this.musicEnabled ? 0.22 : 0.0, t + 0.2);
+    }
+    if (this.musicEnabled) {
+      const activeScreen = document.querySelector('.screen.active')?.id;
+      this.setMusicTrack(activeScreen === 'screen-debate' ? 'debate' : 'menu');
+    }
+    this.updateUI();
+  },
+
+  updateUI() {
+    const btnSfx = document.getElementById('btn-audio-sfx');
+    const btnMusic = document.getElementById('btn-audio-music');
+
+    const SVG_SFX_ON = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2A1E17" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>`;
+    const SVG_SFX_OFF = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2A1E17" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="2" x2="22" y2="22"/><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>`;
+
+    const SVG_MUSIC_ON = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2A1E17" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.5" fill="#2A1E17"/><circle cx="17.5" cy="14.5" r="3.5" fill="#2A1E17"/><path d="M9 17.5V5l12-3v12.5"/></svg>`;
+    const SVG_MUSIC_OFF = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2A1E17" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="2" x2="22" y2="22"/><circle cx="5.5" cy="17.5" r="3.5" fill="#2A1E17"/><circle cx="17.5" cy="14.5" r="3.5" fill="#2A1E17"/><path d="M9 17.5V9"/><path d="M13.5 5.5l7.5-1.9v10.9"/></svg>`;
+
+    if (btnSfx) {
+      btnSfx.className = 'audio-toggle-btn' + (this.sfxEnabled ? '' : ' muted');
+      btnSfx.setAttribute('aria-pressed', String(this.sfxEnabled));
+      btnSfx.setAttribute('aria-label', this.sfxEnabled ? 'Effets sonores activés (cliquer pour couper)' : 'Effets sonores coupés (cliquer pour activer)');
+      btnSfx.title = this.sfxEnabled ? 'Effets sonores (activés)' : 'Effets sonores (coupés)';
+      btnSfx.innerHTML = this.sfxEnabled ? SVG_SFX_ON : SVG_SFX_OFF;
+    }
+
+    if (btnMusic) {
+      btnMusic.className = 'audio-toggle-btn' + (this.musicEnabled ? '' : ' muted');
+      btnMusic.setAttribute('aria-pressed', String(this.musicEnabled));
+      btnMusic.setAttribute('aria-label', this.musicEnabled ? 'Musique activée (cliquer pour couper)' : 'Musique coupée (cliquer pour activer)');
+      btnMusic.title = this.musicEnabled ? 'Musique de fond (activée)' : 'Musique de fond (coupée)';
+      btnMusic.innerHTML = this.musicEnabled ? SVG_MUSIC_ON : SVG_MUSIC_OFF;
+    }
+  },
+
+  setMusicTrack(track) {
+    if (!this.musicEnabled) {
+      this.currentTrack = track;
+      return;
+    }
+    if (this.currentTrack === track && this.musicInterval) return;
+    this.currentTrack = track;
+    this.hasStartedMusic = true;
+    this.startMusicSequencer();
+  },
+
+  startMusicSequencer() {
+    if (this.musicInterval) clearInterval(this.musicInterval);
+    if (!this.ctx) this.init();
+    if (!this.ctx) return;
+
+    this.nextNoteTime = this.ctx.currentTime + 0.05;
+    this.stepIndex = 0;
+
+    this.musicInterval = setInterval(() => {
+      if (!this.musicEnabled || this.currentTrack === 'none' || !this.ctx) return;
+      const lookahead = 0.25;
+      while (this.nextNoteTime < this.ctx.currentTime + lookahead) {
+        this.playMusicStep(this.nextNoteTime, this.stepIndex, this.currentTrack);
+        const stepDuration = (this.currentTrack === 'debate' ? 0.13 : 0.145);
+        this.nextNoteTime += stepDuration;
+        this.stepIndex = (this.stepIndex + 1) % 32;
+      }
+    }, 80);
+  },
+
+  playMusicStep(time, step, track) {
+    if (!this.musicGain || !this.ctx) return;
+    if (track === 'menu') {
+      const bassPattern = [
+        130.8, 0, 0, 0, 196.0, 0, 0, 0,
+        164.8, 0, 0, 0, 220.0, 0, 0, 0,
+        174.6, 0, 0, 0, 261.6, 0, 0, 0,
+        196.0, 0, 0, 0, 246.9, 0, 0, 0
+      ];
+      const melodyPattern = [
+        523.25, 0, 659.25, 0, 783.99, 0, 659.25, 0,
+        880.00, 0, 783.99, 0, 659.25, 0, 523.25, 0,
+        587.33, 0, 659.25, 0, 523.25, 0, 440.00, 0,
+        392.00, 0, 440.00, 0, 523.25, 0, 0, 0
+      ];
+      const bFreq = bassPattern[step % 32];
+      if (bFreq > 0) {
+        this._synthNote(bFreq, 'triangle', time, 0.20, 0.16, this.musicGain);
+      }
+      const mFreq = melodyPattern[step % 32];
+      if (mFreq > 0) {
+        this._synthNote(mFreq, 'sine', time, 0.18, 0.11, this.musicGain);
+      }
+    } else if (track === 'debate') {
+      const bassPattern = [
+        73.4, 0, 73.4, 0, 87.3, 0, 73.4, 0,
+        110.0, 0, 73.4, 0, 98.0, 0, 73.4, 0,
+        73.4, 0, 73.4, 0, 87.3, 0, 110.0, 0,
+        116.5, 0, 110.0, 0, 87.3, 0, 73.4, 0
+      ];
+      const tensionPattern = [
+        0, 0, 293.7, 0, 0, 0, 349.2, 0,
+        0, 0, 293.7, 0, 0, 0, 440.0, 0,
+        0, 0, 329.6, 0, 0, 0, 349.2, 0,
+        0, 0, 466.2, 0, 440.0, 0, 0, 0
+      ];
+      const bFreq = bassPattern[step % 32];
+      if (bFreq > 0) {
+        this._synthNote(bFreq, 'triangle', time, 0.18, 0.18, this.musicGain);
+      }
+      const tFreq = tensionPattern[step % 32];
+      if (tFreq > 0) {
+        this._synthNote(tFreq, 'sine', time, 0.22, 0.08, this.musicGain);
+      }
+      if (step % 2 === 1) {
+        this._synthNote(1200, 'sine', time, 0.02, 0.02, this.musicGain);
+      }
+    }
+  },
+
+  _synthNote(freq, type, start, duration, gainVal, dest) {
+    if (!this.ctx) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, start);
+      gain.gain.setValueAtTime(gainVal, start);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+      osc.connect(gain);
+      gain.connect(dest);
+      osc.start(start);
+      osc.stop(start + duration + 0.02);
+    } catch (e) {}
+  },
+
+  duck(duration = 1.0, factor = 0.2) {
+    if (!this.ctx || !this.duckGain) return;
+    try {
+      const t = this.ctx.currentTime;
+      this.duckGain.gain.cancelScheduledValues(t);
+      this.duckGain.gain.setValueAtTime(this.duckGain.gain.value, t);
+      this.duckGain.gain.linearRampToValueAtTime(factor, t + 0.05);
+      this.duckGain.gain.setValueAtTime(factor, t + duration);
+      this.duckGain.gain.linearRampToValueAtTime(1.0, t + duration + 0.35);
+    } catch (e) {}
+  },
+
+  _tone(freq, type, start, duration, gainVal, freqEnd = null) {
+    if (!this.ctx || !this.sfxEnabled) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, start);
+      if (freqEnd !== null) {
+        osc.frequency.exponentialRampToValueAtTime(Math.max(1, freqEnd), start + duration);
+      }
+      gain.gain.setValueAtTime(gainVal, start);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+      osc.connect(gain);
+      gain.connect(this.sfxGain);
+      osc.start(start);
+      osc.stop(start + duration + 0.02);
+    } catch (e) {}
+  },
+
+  playTock() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    const t = this.ctx.currentTime;
+    this._tone(480, 'triangle', t, 0.035, 0.18, 140);
+  },
+
+  playTockLow() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    const t = this.ctx.currentTime;
+    this._tone(240, 'triangle', t, 0.055, 0.20, 80);
+  },
+
+  playCounterUp() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    const t = this.ctx.currentTime;
+    this._tone(520, 'sine', t, 0.045, 0.16);
+    this._tone(780, 'sine', t + 0.035, 0.055, 0.18);
+  },
+
+  playCounterDown() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    const t = this.ctx.currentTime;
+    this._tone(740, 'sine', t, 0.045, 0.16);
+    this._tone(490, 'sine', t + 0.035, 0.055, 0.18);
+  },
+
+  playPop() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    const t = this.ctx.currentTime;
+    this._tone(280, 'sine', t, 0.07, 0.22, 580);
+  },
+
+  playPlop() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    const t = this.ctx.currentTime;
+    this._tone(540, 'sine', t, 0.07, 0.22, 190);
+  },
+
+  playWhoosh() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    const t = this.ctx.currentTime;
+    this._tone(400, 'sine', t, 0.12, 0.12, 850);
+    this._tone(650, 'triangle', t + 0.03, 0.10, 0.08, 250);
+  },
+
+  playCardDeal() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    this.duck(0.4, 0.3);
+    const t = this.ctx.currentTime;
+    for (let i = 0; i < 4; i++) {
+      this._tone(360 + i * 40, 'triangle', t + i * 0.05, 0.035, 0.15, 160);
+    }
+  },
+
+  playCardFlip() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    const t = this.ctx.currentTime;
+    this._tone(320, 'triangle', t, 0.04, 0.16, 180);
+    this._tone(620, 'sine', t + 0.03, 0.05, 0.14, 280);
+  },
+
+  playInnocentReveal() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    this.duck(0.7, 0.3);
+    const t = this.ctx.currentTime;
+    [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+      this._tone(freq, 'sine', t + i * 0.07, 0.35, 0.14);
+    });
+  },
+
+  playZozuReveal() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    this.duck(0.8, 0.2);
+    const t = this.ctx.currentTime;
+    [349.23, 493.88, 622.25].forEach((freq, i) => {
+      this._tone(freq, 'triangle', t + i * 0.06, 0.40, 0.16);
+    });
+  },
+
+  playCardHide() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    const t = this.ctx.currentTime;
+    this._tone(680, 'sine', t, 0.09, 0.14, 240);
+  },
+
+  playGong() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    this.duck(1.8, 0.15);
+    const t = this.ctx.currentTime;
+    this._tone(170, 'triangle', t, 1.8, 0.35, 110);
+    this._tone(340, 'sine', t, 1.2, 0.18, 220);
+    this._tone(510, 'sine', t, 0.8, 0.09, 440);
+  },
+
+  playTickDiscreet() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    const t = this.ctx.currentTime;
+    this._tone(440, 'triangle', t, 0.025, 0.10);
+  },
+
+  playTickUrgent() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    const t = this.ctx.currentTime;
+    this._tone(920, 'sine', t, 0.02, 0.14);
+  },
+
+  playBuzzer() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    this.duck(1.0, 0.15);
+    const t = this.ctx.currentTime;
+    this._tone(180, 'sawtooth', t, 0.45, 0.20, 90);
+    this._tone(190, 'sawtooth', t + 0.02, 0.43, 0.15, 85);
+  },
+
+  playSuspectSelect() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    const t = this.ctx.currentTime;
+    this._tone(340, 'triangle', t, 0.045, 0.20, 150);
+  },
+
+  playVoteStamp() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    this.duck(0.5, 0.25);
+    const t = this.ctx.currentTime;
+    this._tone(110, 'triangle', t, 0.12, 0.32, 55);
+    this._tone(380, 'sine', t, 0.03, 0.15, 120);
+  },
+
+  playSuspense() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    this.duck(0.6, 0.2);
+    const t = this.ctx.currentTime;
+    for (let i = 0; i < 6; i++) {
+      this._tone(260 + i * 30, 'triangle', t + i * 0.06, 0.035, 0.10 + i * 0.02);
+    }
+  },
+
+  playZozuCaught() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    this.duck(2.2, 0.1);
+    const t = this.ctx.currentTime;
+    [392.00, 523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+      this._tone(freq, 'sine', t + i * 0.11, 0.45, 0.20);
+      this._tone(freq * 0.5, 'triangle', t + i * 0.11, 0.45, 0.12);
+    });
+  },
+
+  playZozuEliminatedOneLeft() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    this.duck(1.5, 0.15);
+    const t = this.ctx.currentTime;
+    [349.23, 440.00, 523.25, 659.25].forEach((freq, i) => {
+      this._tone(freq, 'sine', t + i * 0.10, 0.40, 0.18);
+    });
+  },
+
+  playInnocentEliminated() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    this.duck(1.8, 0.15);
+    const t = this.ctx.currentTime;
+    [293.66, 277.18, 261.63].forEach((freq, i) => {
+      this._tone(freq, 'sawtooth', t + i * 0.25, 0.35, 0.16, freq * 0.94);
+    });
+  },
+
+  playZozuWin() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    this.duck(2.0, 0.1);
+    const t = this.ctx.currentTime;
+    [311.13, 329.63, 349.23, 415.30, 466.16].forEach((freq, i) => {
+      this._tone(freq, 'triangle', t + i * 0.10, 0.30, 0.18);
+    });
+  },
+
+  playNextRound() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    this.duck(0.8, 0.25);
+    const t = this.ctx.currentTime;
+    [523.25, 783.99, 659.25, 1046.50].forEach((freq, i) => {
+      this._tone(freq, 'sine', t + i * 0.08, 0.25, 0.16);
+    });
+  },
+
+  playPlayerJoin() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    const t = this.ctx.currentTime;
+    this._tone(659.25, 'sine', t, 0.25, 0.16);
+    this._tone(880.00, 'sine', t + 0.08, 0.35, 0.18);
+  },
+
+  playSpectator() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    const t = this.ctx.currentTime;
+    this._tone(440.00, 'sine', t, 0.50, 0.10);
+  },
+
+  playWaiting() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    const t = this.ctx.currentTime;
+    this._tone(587.33, 'sine', t, 0.08, 0.09);
+  },
+
+  playConfetti() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    const t = this.ctx.currentTime;
+    for (let i = 0; i < 4; i++) {
+      this._tone(800 + i * 150, 'sine', t + i * 0.07, 0.05, 0.12, 1200 + i * 100);
+    }
+  },
+
+  playCopySuccess() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    const t = this.ctx.currentTime;
+    this._tone(1100, 'sine', t, 0.05, 0.14);
+    this._tone(1480, 'sine', t + 0.05, 0.07, 0.16);
+  },
+
+  playNetworkAlert() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    const t = this.ctx.currentTime;
+    this._tone(240, 'triangle', t, 0.12, 0.15, 180);
+    this._tone(200, 'triangle', t + 0.10, 0.15, 0.15, 150);
+  },
+
+  playNetworkRestored() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    const t = this.ctx.currentTime;
+    this._tone(523.25, 'sine', t, 0.10, 0.15);
+    this._tone(659.25, 'sine', t + 0.08, 0.18, 0.16);
+  },
+
+  playError() {
+    if (!this.sfxEnabled) return;
+    this.unlock();
+    const t = this.ctx.currentTime;
+    this._tone(160, 'sawtooth', t, 0.12, 0.16, 120);
+    this._tone(140, 'sawtooth', t + 0.10, 0.14, 0.16, 100);
+  }
+};
+
 
     // =========================================================================
     // --- ÉTAT DU JEU LOCAL (PASS & PLAY) ---
@@ -2075,6 +2628,9 @@
         zozuCount--;
         userHasChosenZozu = true;
         renderZozuCounter();
+        if (typeof ZozuAudio !== 'undefined') ZozuAudio.playCounterDown();
+      } else {
+        if (typeof ZozuAudio !== 'undefined') ZozuAudio.playError();
       }
     }
 
@@ -2176,7 +2732,27 @@
       }
     }
 
+    // DÉBLOCAGE AUDIO ET CYCLE DE VIE (IPHONE & DESKTOP)
+    ['click', 'touchend'].forEach(evt => {
+      document.addEventListener(evt, () => {
+        if (typeof ZozuAudio !== 'undefined') {
+          ZozuAudio.unlock();
+        }
+      }, { passive: true });
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (typeof ZozuAudio !== 'undefined') {
+        if (document.hidden) ZozuAudio.suspend();
+        else ZozuAudio.resume();
+      }
+    });
+
     window.addEventListener('DOMContentLoaded', () => {
+      if (typeof ZozuAudio !== 'undefined') {
+        ZozuAudio.loadPreferences();
+        ZozuAudio.updateUI();
+      }
       renderPlayerInputs();
 
       // Support des paramètres d'URL pour les tests et la capture
@@ -2266,27 +2842,35 @@
         }
       }
       window.scrollTo(0, 0);
+      if (typeof ZozuAudio !== 'undefined') {
+        ZozuAudio.setMusicTrack(screenId === 'screen-debate' ? 'debate' : 'menu');
+      }
     }
 
     function openRulesModal() {
+      if (typeof ZozuAudio !== 'undefined') ZozuAudio.playWhoosh();
       document.getElementById('rules-modal').classList.add('active');
     }
     function closeRulesModal(e) {
       if (!e || e.target.id === 'rules-modal' || e.target.closest('.close-icon-btn') || e.target.tagName === 'BUTTON') {
+        if (typeof ZozuAudio !== 'undefined') ZozuAudio.playWhoosh();
         document.getElementById('rules-modal').classList.remove('active');
       }
     }
 
     function openPwaModal() {
+      if (typeof ZozuAudio !== 'undefined') ZozuAudio.playWhoosh();
       document.getElementById('pwa-modal').classList.add('active');
     }
     function closePwaModal(e) {
       if (!e || e.target.id === 'pwa-modal' || e.target.closest('.close-icon-btn') || e.target.tagName === 'BUTTON') {
+        if (typeof ZozuAudio !== 'undefined') ZozuAudio.playWhoosh();
         document.getElementById('pwa-modal').classList.remove('active');
       }
     }
 
     function incrementPlayers() {
+      if (typeof ZozuAudio !== 'undefined') ZozuAudio.playCounterUp();
       addPlayerInput();
     }
 
@@ -2365,7 +2949,7 @@
     // --- DISTRIBUTION ET PASS & PLAY ---
     // =========================================================================
     function startLocalGame() {
-      Sound.init();
+      if (typeof ZozuAudio !== 'undefined') ZozuAudio.playCardDeal();
 
       const pCount = localPlayers.length;
       const maxZ = getMaxZozu(pCount);
@@ -2452,7 +3036,9 @@
     }
 
     function revealCurrentCard() {
-      Sound.init();
+      if (typeof ZozuAudio !== 'undefined') {
+        ZozuAudio.playCardFlip();
+      }
       const activePlayers = gameState.players.filter(p => !p.eliminated);
       const player = activePlayers[gameState.currentCardIndex];
       const playerColor = getPlayerColor(player.colorIndex);
@@ -2498,9 +3084,14 @@
       }
 
       showScreen('screen-card-revealed');
+      if (typeof ZozuAudio !== 'undefined') {
+        if (player.isZozu) ZozuAudio.playZozuReveal();
+        else ZozuAudio.playInnocentReveal();
+      }
     }
 
     function hideCardAndNextPlayer() {
+      if (typeof ZozuAudio !== 'undefined') ZozuAudio.playCardHide();
       gameState.currentCardIndex++;
       showPassPhoneScreen();
     }
@@ -2509,7 +3100,10 @@
     // --- DÉBAT & CHRONO (AVEC COULEUR DYNAMIQUE FREDOKA) ---
     // =========================================================================
     function startDebateScreen() {
-      Sound.playGong();
+      if (typeof ZozuAudio !== 'undefined') {
+        ZozuAudio.localTimerFlags = { passed20: false, passed10: false };
+        ZozuAudio.playGong();
+      }
       document.getElementById('debate-round-tag').innerText = `Manche ${gameState.round}`;
       document.getElementById('topic-cat-display').innerText = gameState.currentTopic.cat;
       document.getElementById('topic-title-display').innerText = gameState.currentTopic.title;
@@ -2566,13 +3160,20 @@
         if (gameState.timerSeconds > 0) {
           gameState.timerSeconds--;
           updateTimerDisplay();
+          if (gameState.timerSeconds <= 20 && typeof ZozuAudio !== 'undefined' && !ZozuAudio.localTimerFlags.passed20) {
+            ZozuAudio.localTimerFlags.passed20 = true;
+            ZozuAudio.playTickDiscreet();
+          }
           if (gameState.timerSeconds <= 10 && gameState.timerSeconds > 0) {
-            Sound.playTick();
+            if (typeof ZozuAudio !== 'undefined') {
+              if (!ZozuAudio.localTimerFlags.passed10) ZozuAudio.localTimerFlags.passed10 = true;
+              ZozuAudio.playTickUrgent();
+            }
           }
           if (gameState.timerSeconds === 0) {
             clearInterval(gameState.timerInterval);
             gameState.isTimerRunning = false;
-            Sound.playGong();
+            if (typeof ZozuAudio !== 'undefined') ZozuAudio.playBuzzer();
             finishDebateAndGoToVote();
           }
         }
@@ -2580,6 +3181,7 @@
     }
 
     function toggleTimer() {
+      if (typeof ZozuAudio !== 'undefined') ZozuAudio.playTock();
       if (gameState.isTimerRunning) {
         clearInterval(gameState.timerInterval);
         gameState.isTimerRunning = false;
@@ -2592,6 +3194,7 @@
     function finishDebateAndGoToVote() {
       clearInterval(gameState.timerInterval);
       gameState.isTimerRunning = false;
+      if (typeof ZozuAudio !== 'undefined') ZozuAudio.playSuspense();
       renderVotingList();
       showScreen('screen-vote');
     }
@@ -2648,6 +3251,7 @@
     }
 
     function selectSuspectToVote(playerId) {
+      if (typeof ZozuAudio !== 'undefined') ZozuAudio.playSuspectSelect();
       gameState.selectedVoteId = playerId;
       document.querySelectorAll('.vote-item').forEach(el => el.classList.remove('selected'));
       const chosen = document.getElementById(`vote-item-${playerId}`);
@@ -2701,6 +3305,7 @@
 
     function confirmEliminationVote() {
       if (!gameState.selectedVoteId) return;
+      if (typeof ZozuAudio !== 'undefined') ZozuAudio.playVoteStamp();
 
       const suspect = gameState.players.find(p => p.id === gameState.selectedVoteId);
       if (!suspect) return;
@@ -2721,7 +3326,7 @@
       if (suspect.isZozu) {
         if (aliveZozus.length === 0) {
           // VICTOIRE TOTALE DES DÉBATTEURS
-          Sound.playWin();
+          if (typeof ZozuAudio !== 'undefined') ZozuAudio.playZozuCaught();
           triggerConfetti();
 
           bannerBox.className = 'result-banner success';
@@ -2739,7 +3344,7 @@
           `;
         } else {
           // UN ZOZU EN MOINS, MAIS IL EN RESTE ! PARTIE CONTINUE
-          Sound.playWin();
+          if (typeof ZozuAudio !== 'undefined') ZozuAudio.playZozuEliminatedOneLeft();
 
           bannerBox.className = 'result-banner success';
           iconEl.innerHTML = getResultMascotSvg(true); // Mascotte contente
@@ -2757,10 +3362,9 @@
         }
       } else {
         // INNOCENT ÉLIMINÉ
-        Sound.playFail();
-
         if (aliveZozus.length >= aliveInnocents.length) {
           // VICTOIRE DES ZOZUS !
+          if (typeof ZozuAudio !== 'undefined') ZozuAudio.playZozuWin();
           triggerConfetti();
 
           bannerBox.className = 'result-banner fail tilt-right';
@@ -2778,6 +3382,7 @@
           `;
         } else {
           // LA PARTIE CONTINUE
+          if (typeof ZozuAudio !== 'undefined') ZozuAudio.playInnocentEliminated();
           bannerBox.className = 'result-banner fail tilt-right';
           iconEl.innerHTML = getResultMascotSvg(false);
           titleEl.innerText = 'Erreur, ce joueur n\'était pas un Zozu !';
@@ -2798,6 +3403,7 @@
     }
 
     function launchNextRound() {
+      if (typeof ZozuAudio !== 'undefined') ZozuAudio.playNextRound();
       gameState.round++;
       gameState.currentCardIndex = 0;
       pickNewTopicAndMission();
@@ -2806,6 +3412,7 @@
 
     // CONFETTIS LÉGERS VECTORIELS AUX COULEURS DES JOUEURS
     function triggerConfetti() {
+      if (typeof ZozuAudio !== 'undefined') ZozuAudio.playConfetti();
       const holder = document.getElementById('confetti-holder');
       holder.innerHTML = '';
       const colors = PLAYER_COLORS.map(c => c.hex);
@@ -2971,6 +3578,7 @@
     }
 
     async function leaveLobby() {
+      if (typeof ZozuAudio !== 'undefined') ZozuAudio.playTockLow();
       stopOnlinePolling();
       if (currentRoomCode && myPlayerId && myToken) {
         try {
@@ -3042,11 +3650,25 @@
             showScreen('screen-home');
             return;
           }
-          if (banner) banner.style.display = 'flex';
+          if (banner) {
+            banner.style.display = 'flex';
+            if (typeof ZozuAudio !== 'undefined' && ZozuAudio.onlineSyncMemo.initialized && !ZozuAudio.onlineSyncMemo.bannerVisible) {
+              ZozuAudio.onlineSyncMemo.bannerVisible = true;
+              ZozuAudio.playNetworkAlert();
+            }
+          }
           return;
         }
 
-        if (banner) banner.style.display = 'none';
+        if (banner) {
+            if (banner.style.display !== 'none') {
+              banner.style.display = 'none';
+              if (typeof ZozuAudio !== 'undefined' && ZozuAudio.onlineSyncMemo.initialized && ZozuAudio.onlineSyncMemo.bannerVisible) {
+                ZozuAudio.onlineSyncMemo.bannerVisible = false;
+                ZozuAudio.playNetworkRestored();
+              }
+            }
+          }
 
         const data = await res.json();
         if (data.success && data.room) {
@@ -3066,6 +3688,86 @@
     // =========================================================================
     function syncOnlineUI(room) {
       if (!isOnlineMode) return;
+
+      // DÉTECTION ET SONS EN LIGNE (ZÉRO SON À LA 1ÈRE SYNCHRO)
+      if (typeof ZozuAudio !== 'undefined') {
+        if (!ZozuAudio.onlineSyncMemo.initialized) {
+          ZozuAudio.onlineSyncMemo.initialized = true;
+          ZozuAudio.onlineSyncMemo.status = room.status;
+          ZozuAudio.onlineSyncMemo.playersCount = room.players.length;
+          ZozuAudio.onlineSyncMemo.round = room.round;
+          ZozuAudio.onlineSyncMemo.hasVoted = room.hasVoted;
+          ZozuAudio.onlineSyncMemo.hasConfirmedReveal = room.hasConfirmedReveal;
+          ZozuAudio.onlineSyncMemo.isEliminated = (room.eliminatedIds && room.eliminatedIds.includes(myPlayerId));
+        } else {
+          if (room.status !== ZozuAudio.onlineSyncMemo.status) {
+            const newStatus = room.status;
+            ZozuAudio.onlineSyncMemo.status = newStatus;
+            ZozuAudio.onlineTimerFlags = { passed20: false, passed10: false };
+
+            if (newStatus === 'revealing') {
+              ZozuAudio.playCardDeal();
+              if (room.isZozu) ZozuAudio.playZozuReveal();
+              else ZozuAudio.playInnocentReveal();
+              ZozuAudio.setMusicTrack('menu');
+            } else if (newStatus === 'debating') {
+              ZozuAudio.playGong();
+              ZozuAudio.setMusicTrack('debate');
+            } else if (newStatus === 'voting') {
+              ZozuAudio.playSuspense();
+              ZozuAudio.setMusicTrack('menu');
+            } else if (newStatus === 'result' || newStatus === 'ended') {
+              const res = room.lastResult;
+              if (res) {
+                if (res.wasZozu) {
+                  if (res.outcome === 'debateurs_win') {
+                    ZozuAudio.playZozuCaught();
+                    triggerConfetti();
+                  } else {
+                    ZozuAudio.playZozuEliminatedOneLeft();
+                  }
+                } else {
+                  if (res.outcome === 'zozus_win') {
+                    ZozuAudio.playZozuWin();
+                    triggerConfetti();
+                  } else {
+                    ZozuAudio.playInnocentEliminated();
+                  }
+                }
+              }
+              ZozuAudio.setMusicTrack('menu');
+            }
+          }
+
+          if (room.status === 'lobby') {
+            if (room.players.length > ZozuAudio.onlineSyncMemo.playersCount) {
+              ZozuAudio.playPlayerJoin();
+            }
+            ZozuAudio.onlineSyncMemo.playersCount = room.players.length;
+          }
+
+          if (room.status === 'debating') {
+            if (room.remainingTimer <= 20 && !ZozuAudio.onlineTimerFlags.passed20) {
+              ZozuAudio.onlineTimerFlags.passed20 = true;
+              ZozuAudio.playTickDiscreet();
+            }
+            if (room.remainingTimer <= 10 && room.remainingTimer > 0) {
+              if (!ZozuAudio.onlineTimerFlags.passed10) ZozuAudio.onlineTimerFlags.passed10 = true;
+              ZozuAudio.playTickUrgent();
+            }
+            if (room.remainingTimer === 0) {
+              ZozuAudio.playBuzzer();
+            }
+          }
+
+          const isNowEliminated = (room.eliminatedIds && room.eliminatedIds.includes(myPlayerId));
+          if (isNowEliminated && !ZozuAudio.onlineSyncMemo.isEliminated) {
+            ZozuAudio.onlineSyncMemo.isEliminated = true;
+            ZozuAudio.playSpectator();
+          }
+        }
+      }
+
 
       // 1. ÉTAT : LOBBY
       if (room.status === 'lobby') {
@@ -3430,6 +4132,7 @@
 
     async function apiConfirmReveal() {
       if (!currentRoomCode || !myPlayerId || !myToken) return;
+      if (typeof ZozuAudio !== 'undefined') ZozuAudio.playTock();
       try {
         await fetch('/api/confirm-reveal', {
           method: 'POST',
@@ -3470,6 +4173,7 @@
 
     async function apiCastVote() {
       if (!currentRoomCode || !myPlayerId || !myToken || !onlineSelectedVoteId) return;
+      if (typeof ZozuAudio !== 'undefined') ZozuAudio.playVoteStamp();
       try {
         await fetch('/api/cast-vote', {
           method: 'POST',
@@ -3486,6 +4190,7 @@
     }
 
     async function apiNextRound() {
+      if (typeof ZozuAudio !== 'undefined') ZozuAudio.playNextRound();
       if (!currentRoomCode || !isHost || !myPlayerId || !myToken) return;
       try {
         await fetch('/api/next-round', {
@@ -3498,6 +4203,7 @@
     }
 
     async function apiRestartGame() {
+      if (typeof ZozuAudio !== 'undefined') ZozuAudio.playNextRound();
       if (!currentRoomCode || !isHost || !myPlayerId || !myToken) return;
       try {
         await fetch('/api/restart-game', {
